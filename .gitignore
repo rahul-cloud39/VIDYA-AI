@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+node_modules/
+dist/
+build/
+*.zip
+VidyaAI-project-only-20260424-165818/
