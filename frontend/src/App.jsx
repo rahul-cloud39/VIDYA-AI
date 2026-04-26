@@ -16,11 +16,12 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { API_URL, apiJson, authHeaders, loadRazorpayScript, supabase } from "./api";
 import "./styles.css";
 
-function AuthPanel({ session }) {
+function AuthPanel({ session, canAuth }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function signIn() {
+    if (!supabase) return;
     setLoading(true);
     try {
       await supabase.auth.signInWithOtp({
@@ -34,10 +35,15 @@ function AuthPanel({ session }) {
   }
 
   async function signInWithGoogle() {
+    if (!supabase) return;
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: window.location.origin },
     });
+  }
+
+  if (!canAuth) {
+    return <span className="stat-muted">Set Vercel Supabase env vars to enable login</span>;
   }
 
   if (session) {
@@ -350,6 +356,7 @@ function App() {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const missingSupabase = !supabase;
 
   const exam = profile?.user?.exam || "JEE";
 
@@ -366,6 +373,7 @@ function App() {
   }
 
   useEffect(() => {
+    if (!supabase) return;
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
     const { data } = supabase.auth.onAuthStateChange((_event, newSession) => setSession(newSession));
     return () => data.subscription.unsubscribe();
@@ -396,9 +404,14 @@ function App() {
 
   return (
     <main>
+      {missingSupabase && (
+        <div className="setup-banner">
+          Frontend env vars are missing. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel, then redeploy.
+        </div>
+      )}
       <nav>
         <div className="brand"><Flame size={22} /> VidyaAI</div>
-        <AuthPanel session={session} />
+        <AuthPanel session={session} canAuth={!missingSupabase} />
       </nav>
       <section className="hero">
         <div>

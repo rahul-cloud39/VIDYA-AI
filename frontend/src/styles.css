@@ -235,6 +235,15 @@ button:disabled {
   white-space: pre-wrap;
 }
 
+.setup-banner {
+  background: #fff6dd;
+  border-bottom: 1px solid #ead79b;
+  color: #6c5200;
+  font-weight: 600;
+  padding: 12px 24px;
+  text-align: center;
+}
+
 .plan-list {
   display: grid;
   gap: 10px;
