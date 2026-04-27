@@ -18,17 +18,58 @@ import "./styles.css";
 
 function AuthPanel({ session, canAuth }) {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function signIn() {
     if (!supabase) return;
     setLoading(true);
+    setError("");
     try {
       await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: window.location.origin },
       });
       alert("Magic link sent. Check your email.");
+    } catch (err) {
+      setError(err.message || "Unable to send magic link");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function signUpWithPassword() {
+    if (!supabase) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.origin },
+      });
+      if (signUpError) throw signUpError;
+      alert("Account created. You can log in now.");
+    } catch (err) {
+      setError(err.message || "Unable to sign up");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function signInWithPassword() {
+    if (!supabase) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) throw signInError;
+    } catch (err) {
+      setError(err.message || "Unable to sign in");
     } finally {
       setLoading(false);
     }
@@ -36,10 +77,15 @@ function AuthPanel({ session, canAuth }) {
 
   async function signInWithGoogle() {
     if (!supabase) return;
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
+    try {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin },
+      });
+      if (oauthError) throw oauthError;
+    } catch (err) {
+      setError(err.message || "Google login unavailable");
+    }
   }
 
   if (!canAuth) {
@@ -57,12 +103,25 @@ function AuthPanel({ session, canAuth }) {
   return (
     <div className="auth">
       <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="student@email.com" />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="password"
+      />
+      <button onClick={signInWithPassword} disabled={loading || !email || !password}>
+        <LogIn size={16} /> Password
+      </button>
       <button onClick={signIn} disabled={loading || !email}>
         <LogIn size={16} /> Login
+      </button>
+      <button className="ghost" onClick={signUpWithPassword} disabled={loading || !email || !password}>
+        Sign up
       </button>
       <button className="ghost" onClick={signInWithGoogle}>
         Google
       </button>
+      {error && <div className="error-box">{error}</div>}
     </div>
   );
 }
