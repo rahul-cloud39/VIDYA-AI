@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import urlparse, urlunparse
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,9 +19,25 @@ app = FastAPI(
 BASE_DIR = Path(__file__).resolve().parents[2]
 FRONTEND_DIST_DIR = BASE_DIR / "frontend" / "dist"
 
+
+def build_allowed_origins(frontend_url: str) -> list[str]:
+    origins = {"http://localhost:5173"}
+    cleaned = frontend_url.strip().rstrip("/")
+    if cleaned:
+        origins.add(cleaned)
+        parsed = urlparse(cleaned)
+        if parsed.scheme and parsed.netloc:
+            host = parsed.netloc
+            if host.startswith("www."):
+                alt_host = host.removeprefix("www.")
+            else:
+                alt_host = f"www.{host}"
+            origins.add(urlunparse((parsed.scheme, alt_host, "", "", "", "")))
+    return sorted(origins)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url, "http://localhost:5173"],
+    allow_origins=build_allowed_origins(settings.frontend_url),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
