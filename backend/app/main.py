@@ -68,10 +68,18 @@ app.include_router(users.router, prefix="/api", tags=["users"])
 
 @app.get("/health")
 async def health():
+    import os
+
+    supabase_url = (os.getenv("SUPABASE_URL") or settings.supabase_url or "").strip()
+    service_role_key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or settings.supabase_service_role_key or "").strip()
     return {
         "status": "ok",
         "version": "1.0.0",
-        "supabase_configured": bool(settings.supabase_url and settings.supabase_service_role_key),
+        "supabase_configured": bool(supabase_url and service_role_key),
+        "supabase_missing": {
+            "SUPABASE_URL": not bool(supabase_url),
+            "SUPABASE_SERVICE_ROLE_KEY": not bool(service_role_key),
+        },
         "frontend_url": settings.frontend_url,
     }
 

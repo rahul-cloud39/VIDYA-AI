@@ -1,3 +1,4 @@
+import os
 from fastapi import Depends, Header, HTTPException
 from jose import jwt, JWTError
 from supabase import create_client, Client
@@ -6,9 +7,20 @@ from .models import User
 
 
 def get_supabase(settings: Settings = Depends(get_settings)) -> Client:
-    if not settings.supabase_url or not settings.supabase_service_role_key:
-        raise HTTPException(status_code=500, detail="Supabase is not configured")
-    return create_client(settings.supabase_url, settings.supabase_service_role_key)
+    supabase_url = (os.getenv("SUPABASE_URL") or settings.supabase_url or "").strip()
+    service_role_key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or settings.supabase_service_role_key or "").strip()
+    if not supabase_url or not service_role_key:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": "Supabase is not configured",
+                "missing": {
+                    "SUPABASE_URL": not bool(supabase_url),
+                    "SUPABASE_SERVICE_ROLE_KEY": not bool(service_role_key),
+                },
+            },
+        )
+    return create_client(supabase_url, service_role_key)
 
 
 async def get_current_user(
@@ -54,4 +66,3 @@ async def get_pro_user(user: User = Depends(get_current_user)) -> User:
     if user.plan != "pro":
         raise HTTPException(status_code=402, detail="Pro plan required")
     return user
-
