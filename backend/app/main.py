@@ -68,7 +68,12 @@ app.include_router(users.router, prefix="/api", tags=["users"])
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "1.0.0"}
+    return {
+        "status": "ok",
+        "version": "1.0.0",
+        "supabase_configured": bool(settings.supabase_url and settings.supabase_service_role_key),
+        "frontend_url": settings.frontend_url,
+    }
 
 
 if FRONTEND_DIST_DIR.exists():
