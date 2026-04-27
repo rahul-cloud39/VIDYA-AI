@@ -1,5 +1,5 @@
 from pathlib import Path
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,15 +29,32 @@ def build_allowed_origins(frontend_url: str) -> list[str]:
         if parsed.scheme and parsed.netloc:
             host = parsed.netloc
             if host.startswith("www."):
-                alt_host = host.removeprefix("www.")
+                origins.add(f"{parsed.scheme}://{host.removeprefix('www.')}")
             else:
-                alt_host = f"www.{host}"
-            origins.add(urlunparse((parsed.scheme, alt_host, "", "", "", "")))
+                origins.add(f"{parsed.scheme}://www.{host}")
     return sorted(origins)
+
+
+def build_allowed_origin_regex(frontend_url: str) -> str | None:
+    cleaned = frontend_url.strip().rstrip("/")
+    if not cleaned:
+        return r"https://.*"
+
+    parsed = urlparse(cleaned)
+    if not parsed.scheme or not parsed.netloc:
+        return r"https://.*"
+
+    host = parsed.netloc
+    if host.endswith(".vidyaai.cloud"):
+        return r"https://([a-z0-9-]+\.)*vidyaai\.cloud"
+    if host == "vidyaai.cloud":
+        return r"https://([a-z0-9-]+\.)*vidyaai\.cloud"
+    return r"https://.*"
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=build_allowed_origins(settings.frontend_url),
+    allow_origin_regex=build_allowed_origin_regex(settings.frontend_url),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
