@@ -244,6 +244,11 @@ button:disabled {
   text-align: center;
 }
 
+.setup-banner.warning {
+  background: #fdf1dc;
+  border-bottom-color: #e7c88f;
+}
+
 .plan-list {
   display: grid;
   gap: 10px;

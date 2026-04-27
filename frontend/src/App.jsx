@@ -13,7 +13,7 @@ import {
   Target,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { API_URL, apiJson, authHeaders, loadRazorpayScript, supabase } from "./api";
+import { API_URL, API_CONFIGURED, apiJson, authHeaders, loadRazorpayScript, supabase } from "./api";
 import "./styles.css";
 
 function AuthPanel({ session, canAuth }) {
@@ -156,13 +156,17 @@ function ExamSelector({ exam, onChange, compact = false }) {
   );
 }
 
-function DoubtSolver({ exam }) {
+function DoubtSolver({ exam, apiReady }) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   async function ask() {
+    if (!apiReady) {
+      setError("Set VITE_API_URL to your Render backend URL in Vercel, then redeploy.");
+      return;
+    }
     setAnswer("");
     setError("");
     setLoading(true);
@@ -195,7 +199,7 @@ function DoubtSolver({ exam }) {
       </div>
       <ExamSelector exam={exam} onChange={() => {}} compact />
       <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Paste your doubt here..." />
-      <button onClick={ask} disabled={loading || question.length < 5}>
+      <button onClick={ask} disabled={loading || question.length < 5 || !apiReady}>
         <Send size={16} /> {loading ? "Solving..." : "Ask VidyaAI"}
       </button>
       {error && <div className="error-box">{error}</div>}
@@ -204,7 +208,7 @@ function DoubtSolver({ exam }) {
   );
 }
 
-function MCQGenerator({ exam, onAttemptSaved }) {
+function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
   const [form, setForm] = useState({ exam, subject: "Physics", topic: "Kinematics", difficulty: "medium" });
   const [mcq, setMcq] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -215,6 +219,10 @@ function MCQGenerator({ exam, onAttemptSaved }) {
   }, [exam]);
 
   async function generate() {
+    if (!apiReady) {
+      setMcq(null);
+      return;
+    }
     setSelected(null);
     setChecked(false);
     setMcq(await apiJson("/api/generate-question", { method: "POST", body: JSON.stringify(form) }));
@@ -248,7 +256,7 @@ function MCQGenerator({ exam, onAttemptSaved }) {
           <input key={field} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
         ))}
       </div>
-      <button onClick={generate}>Generate Question</button>
+      <button onClick={generate} disabled={!apiReady}>Generate Question</button>
       {mcq && (
         <div className="question">
           <strong>{mcq.question}</strong>
@@ -306,7 +314,7 @@ function Performance({ refreshKey }) {
   );
 }
 
-function StudyPlanner({ exam }) {
+function StudyPlanner({ exam, apiReady }) {
   const [examDate, setExamDate] = useState("");
   const [hours, setHours] = useState(4);
   const [topics, setTopics] = useState("Kinematics, Work Energy Power");
@@ -314,6 +322,10 @@ function StudyPlanner({ exam }) {
   const [error, setError] = useState("");
 
   async function generatePlan() {
+    if (!apiReady) {
+      setError("Set VITE_API_URL to your Render backend URL in Vercel, then redeploy.");
+      return;
+    }
     setError("");
     try {
       const result = await apiJson("/api/study-plan", {
@@ -341,7 +353,7 @@ function StudyPlanner({ exam }) {
         <input type="number" min="1" max="16" value={hours} onChange={(e) => setHours(e.target.value)} />
       </div>
       <textarea value={topics} onChange={(e) => setTopics(e.target.value)} placeholder="Comma-separated weak topics" />
-      <button onClick={generatePlan} disabled={!examDate}>Generate Plan</button>
+      <button onClick={generatePlan} disabled={!examDate || !apiReady}>Generate Plan</button>
       {error && <div className="error-box">{error}</div>}
       {plan.length > 0 && (
         <div className="plan-list">
@@ -358,10 +370,14 @@ function StudyPlanner({ exam }) {
   );
 }
 
-function Pricing({ user, onUpgraded }) {
+function Pricing({ user, onUpgraded, apiReady }) {
   const [loading, setLoading] = useState(false);
 
   async function upgrade() {
+    if (!apiReady) {
+      alert("Set VITE_API_URL to your Render backend URL in Vercel, then redeploy.");
+      return;
+    }
     setLoading(true);
     try {
       const Razorpay = await loadRazorpayScript();
@@ -404,7 +420,7 @@ function Pricing({ user, onUpgraded }) {
       </div>
       <div className="amount">Rs 199/mo</div>
       <p>Unlimited doubts, mock tests, flashcards, UPSC answer evaluation, and study planner.</p>
-      <button onClick={upgrade} disabled={loading || user?.plan === "pro"}>
+      <button onClick={upgrade} disabled={loading || user?.plan === "pro" || !apiReady}>
         {user?.plan === "pro" ? "Already Pro" : loading ? "Opening Checkout..." : "Upgrade"}
       </button>
     </section>
@@ -416,6 +432,7 @@ function App() {
   const [profile, setProfile] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const missingSupabase = !supabase;
+  const missingApi = !API_CONFIGURED;
 
   const exam = profile?.user?.exam || "JEE";
 
@@ -468,6 +485,11 @@ function App() {
           Frontend env vars are missing. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel, then redeploy.
         </div>
       )}
+      {missingApi && (
+        <div className="setup-banner warning">
+          Frontend API URL is missing. Set `VITE_API_URL` to your Render backend URL in Vercel, then redeploy.
+        </div>
+      )}
       <nav>
         <div className="brand"><Flame size={22} /> VidyaAI</div>
         <AuthPanel session={session} canAuth={!missingSupabase} />
@@ -487,11 +509,11 @@ function App() {
         <StatCard icon={BarChart3} label="Doubt Quota" value={stats.doubts} muted={session ? "Last 24 hours" : "Login required"} />
       </section>
       <div className="layout">
-        <DoubtSolver exam={exam} />
-        <MCQGenerator exam={exam} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
+        <DoubtSolver exam={exam} apiReady={!missingApi} />
+        <MCQGenerator exam={exam} apiReady={!missingApi} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
         <Performance refreshKey={refreshKey} />
-        <StudyPlanner exam={exam} />
-        <Pricing user={profile?.user} onUpgraded={loadProfile} />
+        <StudyPlanner exam={exam} apiReady={!missingApi} />
+        <Pricing user={profile?.user} apiReady={!missingApi} onUpgraded={loadProfile} />
       </div>
     </main>
   );
