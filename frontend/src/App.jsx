@@ -170,26 +170,30 @@ function DoubtSolver({ exam, apiReady }) {
     setAnswer("");
     setError("");
     setLoading(true);
-    const headers = await authHeaders();
-    const response = await fetch(`${API_URL}/api/doubt/stream`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...headers },
-      body: JSON.stringify({ question, exam }),
-    });
-    if (!response.ok || !response.body) {
-      setError(await response.text());
-      setLoading(false);
-      return;
-    }
+    try {
+      const headers = await authHeaders();
+      const response = await fetch(`${API_URL}/api/doubt/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...headers },
+        body: JSON.stringify({ question, exam }),
+      });
+      if (!response.ok || !response.body) {
+        setError(await response.text());
+        return;
+      }
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      setAnswer((prev) => prev + decoder.decode(value));
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        setAnswer((prev) => prev + decoder.decode(value));
+      }
+    } catch (err) {
+      setError(err?.message || "Unable to reach the backend");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
@@ -225,7 +229,11 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
     }
     setSelected(null);
     setChecked(false);
-    setMcq(await apiJson("/api/generate-question", { method: "POST", body: JSON.stringify(form) }));
+    try {
+      setMcq(await apiJson("/api/generate-question", { method: "POST", body: JSON.stringify(form) }));
+    } catch (err) {
+      setMcq(null);
+    }
   }
 
   async function submitAttempt() {
@@ -408,6 +416,8 @@ function Pricing({ user, onUpgraded, apiReady }) {
         theme: { color: "#116a55" },
       });
       instance.open();
+    } catch (err) {
+      alert(err?.message || "Unable to open checkout");
     } finally {
       setLoading(false);
     }
