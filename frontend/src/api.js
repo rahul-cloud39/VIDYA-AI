@@ -1,7 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-export const API_CONFIGURED = Boolean(import.meta.env.VITE_API_URL) && !API_URL.includes("localhost");
+const resolvedApiUrl =
+  import.meta.env.VITE_API_URL || (typeof window !== "undefined" ? window.location.origin : "http://localhost:8000");
+
+export const API_URL = resolvedApiUrl;
+export const API_CONFIGURED = Boolean(import.meta.env.VITE_API_URL) || !API_URL.includes("localhost");
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
