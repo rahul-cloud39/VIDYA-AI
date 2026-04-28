@@ -2,9 +2,23 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from supabase import Client
 
-from ..ai import EXAM_SYSTEM_PROMPTS, generate_response, parse_json_text
+from ..ai import (
+    EXAM_SYSTEM_PROMPTS,
+    generate_response,
+    generate_teacher_lesson,
+    parse_json_text,
+    teacher_lesson_fallback,
+)
 from ..deps import get_current_user, get_optional_user, get_pro_user, get_supabase
-from ..models import DoubtRequest, EvalRequest, FlashcardRequest, PlanRequest, QuestionRequest, User
+from ..models import (
+    DoubtRequest,
+    EvalRequest,
+    FlashcardRequest,
+    PlanRequest,
+    QuestionRequest,
+    TeacherRequest,
+    User,
+)
 from ..utils import day_ago_iso
 
 
@@ -51,6 +65,33 @@ async def stream_doubt(
             ).execute()
 
     return StreamingResponse(generate(), media_type="text/plain")
+
+
+@router.post("/teacher/explain")
+async def teacher_explain(
+    data: TeacherRequest,
+    user: User | None = Depends(get_optional_user),
+):
+    try:
+        response = generate_teacher_lesson(
+            question=data.question,
+            exam=data.exam,
+            language=data.language,
+            avatar_style=data.avatar_style,
+            image_data=data.image_data,
+            image_mime_type=data.image_mime_type,
+        )
+        return parse_json_text(response)
+    except Exception:
+        return parse_json_text(
+            teacher_lesson_fallback(
+                question=data.question,
+                exam=data.exam,
+                language=data.language,
+                avatar_style=data.avatar_style,
+                image_data=data.image_data,
+            )
+        )
 
 
 @router.post("/generate-question")

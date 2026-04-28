@@ -4,13 +4,18 @@ import {
   BarChart3,
   Brain,
   CreditCard,
+  Clapperboard,
   Flame,
   GraduationCap,
+  Image as ImageIcon,
   LineChart,
   LogIn,
+  Mic2,
+  Languages,
   Send,
   Sparkles,
   Target,
+  Video,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { API_CONFIGURED, apiFetch, apiJson, authHeaders, loadRazorpayScript, supabase } from "./api";
@@ -151,6 +156,205 @@ function DifferentiatorCard({ icon: Icon, title, text, bullets }) {
           <li key={bullet}>{bullet}</li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+function TeacherStudio({ exam, apiReady }) {
+  const [question, setQuestion] = useState("");
+  const [language, setLanguage] = useState("Hinglish");
+  const [avatarStyle, setAvatarStyle] = useState("friendly");
+  const [imageData, setImageData] = useState("");
+  const [imageMimeType, setImageMimeType] = useState("image/png");
+  const [imageName, setImageName] = useState("");
+  const [lesson, setLesson] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function onImageChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setImageData("");
+      setImageMimeType("image/png");
+      setImageName("");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      const [, base64 = ""] = result.split(",");
+      setImageData(base64);
+      setImageMimeType(file.type || "image/png");
+      setImageName(file.name);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function createLesson() {
+    if (!question.trim()) {
+      setError("Type a doubt first.");
+      return;
+    }
+    if (!apiReady) {
+      setError("Set VITE_API_URL to your backend URL in frontend deployment env, then redeploy.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const result = await apiJson("/api/teacher/explain", {
+        method: "POST",
+        body: JSON.stringify({
+          question,
+          exam,
+          language,
+          avatar_style: avatarStyle,
+          image_data: imageData,
+          image_mime_type: imageMimeType,
+        }),
+      });
+      setLesson(result);
+    } catch (err) {
+      setError(err.message || "Unable to build teacher lesson");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section className="panel teacher-panel">
+      <div className="panel-title">
+        <Video size={20} /> AI Teacher Studio
+      </div>
+      <div className="teacher-grid">
+        <div className="teacher-inputs">
+          <div className="row compact">
+            {["friendly", "strict", "funny"].map((style) => (
+              <button
+                key={style}
+                type="button"
+                className={avatarStyle === style ? "selected" : "chip"}
+                onClick={() => setAvatarStyle(style)}
+              >
+                {style}
+              </button>
+            ))}
+          </div>
+          <div className="row compact">
+            {["Hinglish", "Hindi", "English", "Tamil", "Marathi"].map((item) => (
+              <button
+                key={item}
+                type="button"
+                className={language === item ? "selected" : "chip"}
+                onClick={() => setLanguage(item)}
+              >
+                <Languages size={14} /> {item}
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Paste the question or concept you want the AI teacher to explain..."
+          />
+          <div className="teacher-upload">
+            <label className="upload-label">
+              <Clapperboard size={16} /> Add question image
+              <input type="file" accept="image/*" onChange={onImageChange} />
+            </label>
+            <div className="upload-meta">
+              {imageName ? `Attached: ${imageName}` : "Optional: upload a screenshot or handwritten question"}
+            </div>
+          </div>
+          <button onClick={createLesson} disabled={loading || !apiReady || question.length < 5}>
+            <Mic2 size={16} /> {loading ? "Creating video lesson..." : "Create Teacher Lesson"}
+          </button>
+          {error && <div className="error-box">{error}</div>}
+        </div>
+        <div className="teacher-output">
+          {lesson ? (
+            <>
+              <div className="lesson-title">{lesson.title}</div>
+              <div className="lesson-summary">{lesson.concept_summary}</div>
+              <div className="lesson-pill-row">
+                <span className="lesson-pill">{lesson.language}</span>
+                <span className="lesson-pill">{lesson.avatar_style}</span>
+                <span className="lesson-pill">{lesson.teaching_mood}</span>
+              </div>
+              <div className="lesson-card">
+                <strong>Short answer</strong>
+                <p>{lesson.short_answer}</p>
+              </div>
+              <div className="lesson-card">
+                <strong>Voice script</strong>
+                <p>{lesson.voiceover_script}</p>
+              </div>
+              <div className="lesson-section-title">Video scene plan</div>
+              <ul className="lesson-list">
+                {(lesson.video_scene_plan || []).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <div className="lesson-section-title">Step by step</div>
+              <div className="lesson-steps">
+                {(lesson.steps || []).map((step) => (
+                  <div className="lesson-step" key={step.title}>
+                    <strong>{step.title}</strong>
+                    <p>{step.explanation}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="lesson-grid">
+                <div className="lesson-card">
+                  <strong>Examples</strong>
+                  <ul className="lesson-list">
+                    {(lesson.examples || []).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="lesson-card">
+                  <strong>Common mistakes</strong>
+                  <ul className="lesson-list">
+                    {(lesson.common_mistakes || []).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <div className="lesson-card">
+                <strong>Memory hook</strong>
+                <p>{lesson.memory_hook}</p>
+              </div>
+              <div className="lesson-card">
+                <strong>Next practice</strong>
+                <ul className="lesson-list">
+                  {(lesson.next_practice || []).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="lesson-card">
+                <strong>Follow-up question</strong>
+                <p>{lesson.follow_up_question}</p>
+              </div>
+              <div className="lesson-card reminder">
+                <strong>Execution pressure</strong>
+                <p>{lesson.reminder_message}</p>
+              </div>
+            </>
+          ) : (
+            <div className="teacher-placeholder">
+              <ImageIcon size={28} />
+              <div className="teacher-placeholder-title">Video-style teacher lesson will appear here</div>
+              <div className="teacher-placeholder-copy">
+                Ask a doubt, attach a screenshot, pick the teacher mood, and generate a video-ready explanation.
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </section>
   );
 }
@@ -617,6 +821,7 @@ function App() {
         />
       </section>
       <div className="layout">
+        <TeacherStudio exam={exam} apiReady={!missingApi} />
         <DoubtSolver exam={exam} apiReady={!missingApi} onExamChange={changeExam} />
         <MCQGenerator exam={exam} apiReady={!missingApi} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
         <Performance refreshKey={refreshKey} />

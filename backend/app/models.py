@@ -18,6 +18,15 @@ class DoubtRequest(BaseModel):
     exam: Exam = "JEE"
 
 
+class TeacherRequest(BaseModel):
+    question: str = Field(min_length=5, max_length=3000)
+    exam: Exam = "JEE"
+    language: str = Field(default="Hinglish", max_length=50)
+    avatar_style: str = Field(default="friendly", max_length=50)
+    image_data: str = Field(default="", max_length=5_000_000)
+    image_mime_type: str = Field(default="image/png", max_length=100)
+
+
 class QuestionRequest(BaseModel):
     exam: Exam
     subject: str
