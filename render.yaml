@@ -21,5 +21,9 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
     buildCommand: cd frontend && npm install && npm run build && cd ../backend && python -m pip install -r requirements.txt
     startCommand: python -m uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT

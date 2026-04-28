@@ -89,7 +89,7 @@ function AuthPanel({ session, canAuth }) {
   }
 
   if (!canAuth) {
-    return <span className="stat-muted">Set Vercel Supabase env vars to enable login</span>;
+    return <span className="stat-muted">Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Render, then redeploy.</span>;
   }
 
   if (session) {
@@ -492,7 +492,7 @@ function App() {
     <main>
       {missingSupabase && (
         <div className="setup-banner">
-          Frontend env vars are missing. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel, then redeploy.
+          Frontend env vars are missing. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Render, then redeploy.
         </div>
       )}
       {missingApi && (
