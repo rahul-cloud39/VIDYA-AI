@@ -17,8 +17,17 @@ async def create_order(
     settings: Settings = Depends(get_settings),
     supabase: Client = Depends(get_supabase),
 ):
+    if not settings.razorpay_key_id or not settings.razorpay_key_secret:
+        raise HTTPException(
+            status_code=500,
+            detail="Razorpay keys are missing on backend",
+        )
+
     client = razorpay.Client(auth=(settings.razorpay_key_id, settings.razorpay_key_secret))
-    order = client.order.create({"amount": 19900, "currency": "INR", "payment_capture": 1})
+    try:
+        order = client.order.create({"amount": 19900, "currency": "INR", "payment_capture": 1})
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Razorpay order creation failed: {exc}") from exc
     supabase.table("subscriptions").insert(
         {
             "user_id": user.id,

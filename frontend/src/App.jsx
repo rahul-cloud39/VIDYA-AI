@@ -417,7 +417,12 @@ function Pricing({ user, onUpgraded, apiReady }) {
       });
       instance.open();
     } catch (err) {
-      alert(err?.message || "Unable to open checkout");
+      let message = err?.message || "Unable to open checkout";
+      try {
+        const parsed = JSON.parse(message);
+        message = parsed?.detail || parsed?.message || message;
+      } catch {}
+      alert(message);
     } finally {
       setLoading(false);
     }
