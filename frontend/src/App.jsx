@@ -438,10 +438,13 @@ function Pricing({ user, onUpgraded, apiReady }) {
         const parsed = JSON.parse(message);
         message = parsed?.detail || parsed?.message || message;
       } catch {}
-      if (!message || message === "Unable to open checkout") {
+      if (!message || message === "{}" || message === "Unable to open checkout") {
         try {
           message = JSON.stringify(err);
         } catch {}
+      }
+      if (!message || message === "{}") {
+        message = "Checkout request failed. Please check backend /health and Render logs for /api/create-order.";
       }
       alert(message);
     } finally {

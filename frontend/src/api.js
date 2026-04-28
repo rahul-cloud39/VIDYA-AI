@@ -34,7 +34,16 @@ export async function apiJson(path, options = {}) {
   };
 
   const response = await apiFetch(path, requestOptions);
-  if (!response.ok) throw new Error(await response.text());
+  if (!response.ok) {
+    const raw = await response.text();
+    let parsedMessage = "";
+    try {
+      const parsed = JSON.parse(raw);
+      parsedMessage = parsed?.detail || parsed?.message || "";
+    } catch {}
+    const message = parsedMessage || raw || `Request failed (${response.status})`;
+    throw new Error(message);
+  }
   return response.json();
 }
 
