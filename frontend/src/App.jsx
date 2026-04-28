@@ -13,7 +13,7 @@ import {
   Target,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { API_URL, API_CONFIGURED, apiJson, authHeaders, loadRazorpayScript, supabase } from "./api";
+import { API_CONFIGURED, apiFetch, apiJson, authHeaders, loadRazorpayScript, supabase } from "./api";
 import "./styles.css";
 
 function AuthPanel({ session, canAuth }) {
@@ -172,7 +172,7 @@ function DoubtSolver({ exam, apiReady }) {
     setLoading(true);
     try {
       const headers = await authHeaders();
-      const response = await fetch(`${API_URL}/api/doubt/stream`, {
+      const response = await apiFetch("/api/doubt/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...headers },
         body: JSON.stringify({ question, exam }),
@@ -402,7 +402,7 @@ function Pricing({ user, onUpgraded, apiReady }) {
           email: user?.email || "",
         },
         handler: async (response) => {
-          await fetch(`${API_URL}/api/verify-payment`, {
+          await apiFetch("/api/verify-payment", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

@@ -7,7 +7,12 @@ from .models import User
 
 def get_supabase(settings: Settings = Depends(get_settings)) -> Client:
     supabase_url = (os.getenv("SUPABASE_URL") or settings.supabase_url or "").strip()
-    service_role_key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or settings.supabase_service_role_key or "").strip()
+    service_role_key = (
+        os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        or os.getenv("SUPABSE_SERVICE_ROLE_KEY")
+        or settings.supabase_service_role_key
+        or ""
+    ).strip()
     if not supabase_url or not service_role_key:
         raise HTTPException(
             status_code=500,

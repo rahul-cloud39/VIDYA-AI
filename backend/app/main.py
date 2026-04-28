@@ -53,9 +53,9 @@ def build_allowed_origin_regex(frontend_url: str) -> str | None:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=build_allowed_origins(settings.frontend_url),
-    allow_origin_regex=build_allowed_origin_regex(settings.frontend_url),
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_origin_regex=None,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -71,7 +71,12 @@ async def health():
     import os
 
     supabase_url = (os.getenv("SUPABASE_URL") or settings.supabase_url or "").strip()
-    service_role_key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or settings.supabase_service_role_key or "").strip()
+    service_role_key = (
+        os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        or os.getenv("SUPABSE_SERVICE_ROLE_KEY")
+        or settings.supabase_service_role_key
+        or ""
+    ).strip()
     return {
         "status": "ok",
         "version": "1.0.0",
