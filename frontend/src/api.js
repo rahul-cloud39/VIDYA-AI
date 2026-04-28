@@ -42,7 +42,7 @@ export async function apiFetch(path, options = {}) {
   const requestOptions = { ...options };
   if (!normalizedEnvApiUrl && !isLocalhostOrigin) {
     throw new Error(
-      "VITE_API_URL is missing. Set it in Vercel to your Render backend URL, then redeploy frontend."
+      "VITE_API_URL is missing. Set it in your frontend deployment env to backend URL, then redeploy frontend."
     );
   }
 

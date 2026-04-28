@@ -89,7 +89,7 @@ function AuthPanel({ session, canAuth }) {
   }
 
   if (!canAuth) {
-    return <span className="stat-muted">Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Render, then redeploy.</span>;
+    return <span className="stat-muted">Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in your frontend deployment env, then redeploy.</span>;
   }
 
   if (session) {
@@ -164,7 +164,7 @@ function DoubtSolver({ exam, apiReady, onExamChange }) {
 
   async function ask() {
     if (!apiReady) {
-      setError("Set VITE_API_URL to your Render backend URL in Vercel, then redeploy.");
+      setError("Set VITE_API_URL to your backend URL in frontend deployment env, then redeploy.");
       return;
     }
     setAnswer("");
@@ -331,7 +331,7 @@ function StudyPlanner({ exam, apiReady }) {
 
   async function generatePlan() {
     if (!apiReady) {
-      setError("Set VITE_API_URL to your Render backend URL in Vercel, then redeploy.");
+      setError("Set VITE_API_URL to your backend URL in frontend deployment env, then redeploy.");
       return;
     }
     setError("");
@@ -383,7 +383,7 @@ function Pricing({ user, onUpgraded, apiReady }) {
 
   async function upgrade() {
     if (!apiReady) {
-      alert("Set VITE_API_URL to your Render backend URL in Vercel, then redeploy.");
+      alert("Set VITE_API_URL to your backend URL in frontend deployment env, then redeploy.");
       return;
     }
     setLoading(true);
@@ -497,12 +497,12 @@ function App() {
     <main>
       {missingSupabase && (
         <div className="setup-banner">
-          Frontend env vars are missing. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Render, then redeploy.
+          Frontend env vars are missing. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in frontend deployment env, then redeploy.
         </div>
       )}
       {missingApi && (
         <div className="setup-banner warning">
-          Frontend API URL is missing. Set `VITE_API_URL` to your Render backend URL in Vercel, then redeploy.
+          Frontend API URL is missing. Set `VITE_API_URL` to your backend URL in frontend deployment env, then redeploy.
         </div>
       )}
       <nav>
