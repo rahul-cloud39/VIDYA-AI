@@ -1,6 +1,5 @@
 import os
 from fastapi import Depends, Header, HTTPException
-from jose import jwt, JWTError
 from supabase import create_client, Client
 from .config import Settings, get_settings
 from .models import User
@@ -25,7 +24,6 @@ def get_supabase(settings: Settings = Depends(get_settings)) -> Client:
 
 async def get_current_user(
     authorization: str | None = Header(default=None),
-    settings: Settings = Depends(get_settings),
     supabase: Client = Depends(get_supabase),
 ) -> User:
     if not authorization or not authorization.startswith("Bearer "):
@@ -33,18 +31,13 @@ async def get_current_user(
 
     token = authorization.removeprefix("Bearer ").strip()
     try:
-        payload = jwt.decode(
-            token,
-            settings.supabase_jwt_secret,
-            algorithms=["HS256"],
-            audience="authenticated",
-            options={"verify_at_hash": False},
-        )
-    except JWTError as exc:
+        user_response = supabase.auth.get_user(token)
+    except Exception as exc:
         raise HTTPException(status_code=401, detail="Invalid token") from exc
 
-    user_id = payload.get("sub")
-    email = payload.get("email", "")
+    auth_user = getattr(user_response, "user", None)
+    user_id = getattr(auth_user, "id", None)
+    email = getattr(auth_user, "email", "") or ""
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid token subject")
 
