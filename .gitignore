@@ -5,6 +5,8 @@ __pycache__/
 venv/
 node_modules/
 dist/
+!frontend/dist/
+!frontend/dist/**
 build/
 *.zip
 VidyaAI-project-only-20260424-165818/
