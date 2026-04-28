@@ -3,9 +3,11 @@ import { createClient } from "@supabase/supabase-js";
 const normalizedEnvApiUrl = (import.meta.env.VITE_API_URL || "").trim().replace(/\/+$/, "");
 const browserOrigin = typeof window !== "undefined" ? window.location.origin : "http://localhost:8000";
 const resolvedApiUrl = normalizedEnvApiUrl || browserOrigin;
+const isLocalhostOrigin =
+  browserOrigin.includes("localhost") || browserOrigin.includes("127.0.0.1");
 
 export const API_URL = resolvedApiUrl;
-export const API_CONFIGURED = Boolean(import.meta.env.VITE_API_URL) || !API_URL.includes("localhost");
+export const API_CONFIGURED = Boolean(normalizedEnvApiUrl) || isLocalhostOrigin;
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
@@ -38,6 +40,11 @@ export async function apiJson(path, options = {}) {
 
 export async function apiFetch(path, options = {}) {
   const requestOptions = { ...options };
+  if (!normalizedEnvApiUrl && !isLocalhostOrigin) {
+    throw new Error(
+      "VITE_API_URL is missing. Set it in Vercel to your Render backend URL, then redeploy frontend."
+    );
+  }
 
   let response;
   try {
