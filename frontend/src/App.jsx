@@ -156,7 +156,7 @@ function ExamSelector({ exam, onChange, compact = false }) {
   );
 }
 
-function DoubtSolver({ exam, apiReady }) {
+function DoubtSolver({ exam, apiReady, onExamChange }) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
@@ -201,7 +201,7 @@ function DoubtSolver({ exam, apiReady }) {
       <div className="panel-title">
         <Brain size={20} /> AI Doubt Solver
       </div>
-      <ExamSelector exam={exam} onChange={() => {}} compact />
+      <ExamSelector exam={exam} onChange={onExamChange} compact />
       <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Paste your doubt here..." />
       <button onClick={ask} disabled={loading || question.length < 5 || !apiReady}>
         <Send size={16} /> {loading ? "Solving..." : "Ask VidyaAI"}
@@ -524,7 +524,7 @@ function App() {
         <StatCard icon={BarChart3} label="Doubt Quota" value={stats.doubts} muted={session ? "Last 24 hours" : "Login required"} />
       </section>
       <div className="layout">
-        <DoubtSolver exam={exam} apiReady={!missingApi} />
+        <DoubtSolver exam={exam} apiReady={!missingApi} onExamChange={changeExam} />
         <MCQGenerator exam={exam} apiReady={!missingApi} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
         <Performance refreshKey={refreshKey} />
         <StudyPlanner exam={exam} apiReady={!missingApi} />
