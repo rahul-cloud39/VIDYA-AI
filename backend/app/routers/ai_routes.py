@@ -78,6 +78,7 @@ async def teacher_explain(
             exam=data.exam,
             language=data.language,
             avatar_style=data.avatar_style,
+            student_level=data.student_level,
             image_data=data.image_data,
             image_mime_type=data.image_mime_type,
         )
@@ -89,6 +90,7 @@ async def teacher_explain(
                 exam=data.exam,
                 language=data.language,
                 avatar_style=data.avatar_style,
+                student_level=data.student_level,
                 image_data=data.image_data,
             )
         )

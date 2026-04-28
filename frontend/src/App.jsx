@@ -164,6 +164,7 @@ function TeacherStudio({ exam, apiReady }) {
   const [question, setQuestion] = useState("");
   const [language, setLanguage] = useState("Hinglish");
   const [avatarStyle, setAvatarStyle] = useState("friendly");
+  const [studentLevel, setStudentLevel] = useState("beginner");
   const [imageData, setImageData] = useState("");
   const [imageMimeType, setImageMimeType] = useState("image/png");
   const [imageName, setImageName] = useState("");
@@ -210,6 +211,7 @@ function TeacherStudio({ exam, apiReady }) {
           exam,
           language,
           avatar_style: avatarStyle,
+          student_level: studentLevel,
           image_data: imageData,
           image_mime_type: imageMimeType,
         }),
@@ -242,6 +244,18 @@ function TeacherStudio({ exam, apiReady }) {
             ))}
           </div>
           <div className="row compact">
+            {["beginner", "intermediate", "advanced"].map((level) => (
+              <button
+                key={level}
+                type="button"
+                className={studentLevel === level ? "selected" : "chip"}
+                onClick={() => setStudentLevel(level)}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
+          <div className="row compact">
             {["Hinglish", "Hindi", "English", "Tamil", "Marathi"].map((item) => (
               <button
                 key={item}
@@ -253,10 +267,13 @@ function TeacherStudio({ exam, apiReady }) {
               </button>
             ))}
           </div>
+          <div className="teacher-help">
+            Beginner mode keeps the answer simple, board-style, and zero-jargon. Ask the concept like you are asking a class teacher.
+          </div>
           <textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Paste the question or concept you want the AI teacher to explain..."
+            placeholder="Example: Explain kinetic energy like I know nothing, with steps and one easy example..."
           />
           <div className="teacher-upload">
             <label className="upload-label">
@@ -280,7 +297,20 @@ function TeacherStudio({ exam, apiReady }) {
               <div className="lesson-pill-row">
                 <span className="lesson-pill">{lesson.language}</span>
                 <span className="lesson-pill">{lesson.avatar_style}</span>
+                <span className="lesson-pill">{lesson.student_level}</span>
                 <span className="lesson-pill">{lesson.teaching_mood}</span>
+              </div>
+              <div className="lesson-card reminder">
+                <strong>Why it matters</strong>
+                <p>{lesson.why_it_matters}</p>
+              </div>
+              <div className="lesson-card">
+                <strong>Ultra simple explanation</strong>
+                <p>{lesson.ultra_simple_explanation}</p>
+              </div>
+              <div className="lesson-card">
+                <strong>Analogy</strong>
+                <p>{lesson.analogy}</p>
               </div>
               <div className="lesson-card">
                 <strong>Short answer</strong>
@@ -296,6 +326,14 @@ function TeacherStudio({ exam, apiReady }) {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              <div className="lesson-card">
+                <strong>Board walkthrough</strong>
+                <ul className="lesson-list">
+                  {(lesson.board_walkthrough || []).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
               <div className="lesson-section-title">Step by step</div>
               <div className="lesson-steps">
                 {(lesson.steps || []).map((step) => (
@@ -326,6 +364,14 @@ function TeacherStudio({ exam, apiReady }) {
               <div className="lesson-card">
                 <strong>Memory hook</strong>
                 <p>{lesson.memory_hook}</p>
+              </div>
+              <div className="lesson-card">
+                <strong>Teacher tone</strong>
+                <p>{lesson.teacher_tone}</p>
+              </div>
+              <div className="lesson-card">
+                <strong>Student check</strong>
+                <p>{lesson.student_check}</p>
               </div>
               <div className="lesson-card">
                 <strong>Next practice</strong>

@@ -23,6 +23,7 @@ class TeacherRequest(BaseModel):
     exam: Exam = "JEE"
     language: str = Field(default="Hinglish", max_length=50)
     avatar_style: str = Field(default="friendly", max_length=50)
+    student_level: str = Field(default="beginner", max_length=30)
     image_data: str = Field(default="", max_length=5_000_000)
     image_mime_type: str = Field(default="image/png", max_length=100)
 
