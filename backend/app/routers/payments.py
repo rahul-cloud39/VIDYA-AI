@@ -28,15 +28,21 @@ async def create_order(
         order = client.order.create({"amount": 19900, "currency": "INR", "payment_capture": 1})
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Razorpay order creation failed: {exc}") from exc
-    supabase.table("subscriptions").insert(
-        {
-            "user_id": user.id,
-            "plan": "pro",
-            "amount": 19900,
-            "razorpay_order_id": order["id"],
-            "status": "pending",
-        }
-    ).execute()
+
+    # Do not block checkout if DB write fails; webhook/verify can still reconcile.
+    try:
+        supabase.table("subscriptions").insert(
+            {
+                "user_id": user.id,
+                "plan": "pro",
+                "amount": 19900,
+                "razorpay_order_id": order["id"],
+                "status": "pending",
+            }
+        ).execute()
+    except Exception:
+        pass
+
     return {"order": order, "key_id": settings.razorpay_key_id}
 
 
