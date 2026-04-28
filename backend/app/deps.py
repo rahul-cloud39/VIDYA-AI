@@ -46,8 +46,13 @@ async def get_current_user(
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid token subject")
 
-    result = supabase.table("users").select("*").eq("id", user_id).maybe_single().execute()
-    row = result.data
+    row = None
+    try:
+        result = supabase.table("users").select("*").eq("id", user_id).maybe_single().execute()
+        row = result.data
+    except Exception:
+        row = None
+
     if not row:
         row = {
             "id": user_id,
@@ -55,7 +60,10 @@ async def get_current_user(
             "plan": "free",
             "exam": "JEE",
         }
-        supabase.table("users").insert(row).execute()
+        try:
+            supabase.table("users").upsert(row, onConflict="id").execute()
+        except Exception:
+            pass
 
     return User(**row)
 
@@ -88,8 +96,13 @@ async def get_optional_user(
     if not user_id:
         return None
 
-    result = supabase.table("users").select("*").eq("id", user_id).maybe_single().execute()
-    row = result.data
+    row = None
+    try:
+        result = supabase.table("users").select("*").eq("id", user_id).maybe_single().execute()
+        row = result.data
+    except Exception:
+        row = None
+
     if not row:
         row = {
             "id": user_id,
@@ -97,6 +110,9 @@ async def get_optional_user(
             "plan": "free",
             "exam": "JEE",
         }
-        supabase.table("users").insert(row).execute()
+        try:
+            supabase.table("users").upsert(row, onConflict="id").execute()
+        except Exception:
+            pass
 
     return User(**row)
