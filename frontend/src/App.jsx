@@ -446,10 +446,11 @@ function App() {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedExam, setSelectedExam] = useState("JEE");
   const missingSupabase = !supabase;
   const missingApi = !API_CONFIGURED;
 
-  const exam = profile?.user?.exam || "JEE";
+  const exam = selectedExam;
 
   async function loadProfile() {
     if (!session) {
@@ -474,6 +475,13 @@ function App() {
     loadProfile();
   }, [session]);
 
+  useEffect(() => {
+    const profileExam = profile?.user?.exam;
+    if (profileExam && profileExam !== selectedExam) {
+      setSelectedExam(profileExam);
+    }
+  }, [profile]);
+
   const stats = useMemo(() => {
     const user = profile?.user;
     const quota = profile?.quota;
@@ -485,12 +493,17 @@ function App() {
   }, [profile]);
 
   async function changeExam(nextExam) {
+    setSelectedExam(nextExam);
     if (!session) return;
-    await apiJson("/api/me", {
-      method: "PATCH",
-      body: JSON.stringify({ exam: nextExam }),
-    });
-    await loadProfile();
+    try {
+      await apiJson("/api/me", {
+        method: "PATCH",
+        body: JSON.stringify({ exam: nextExam }),
+      });
+      await loadProfile();
+    } catch {
+      // Keep local selection even if profile sync fails.
+    }
   }
 
   return (
