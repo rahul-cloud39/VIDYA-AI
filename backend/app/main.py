@@ -81,9 +81,14 @@ async def health():
         "status": "ok",
         "version": "1.0.0",
         "supabase_configured": bool(supabase_url and service_role_key),
+        "razorpay_configured": bool(settings.razorpay_key_id and settings.razorpay_key_secret),
         "supabase_missing": {
             "SUPABASE_URL": not bool(supabase_url),
             "SUPABASE_SERVICE_ROLE_KEY": not bool(service_role_key),
+        },
+        "razorpay_missing": {
+            "RAZORPAY_KEY_ID": not bool(settings.razorpay_key_id),
+            "RAZORPAY_KEY_SECRET": not bool(settings.razorpay_key_secret),
         },
         "frontend_url": settings.frontend_url,
     }

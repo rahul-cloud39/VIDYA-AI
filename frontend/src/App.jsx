@@ -388,8 +388,20 @@ function Pricing({ user, onUpgraded, apiReady }) {
     }
     setLoading(true);
     try {
-      const Razorpay = await loadRazorpayScript();
+      let Razorpay;
+      try {
+        Razorpay = await loadRazorpayScript();
+      } catch (err) {
+        throw new Error(`Razorpay script load failed: ${err?.message || "unknown error"}`);
+      }
+
       const { order, key_id } = await apiJson("/api/create-order", { method: "POST", body: "{}" });
+      if (!key_id || typeof key_id !== "string" || !key_id.startsWith("rzp_")) {
+        throw new Error("Razorpay key is invalid or missing from backend response");
+      }
+      if (!order?.id) {
+        throw new Error("Razorpay order id missing from backend response");
+      }
       const headers = await authHeaders();
       const instance = new Razorpay({
         key: key_id,
@@ -415,13 +427,22 @@ function Pricing({ user, onUpgraded, apiReady }) {
         },
         theme: { color: "#116a55" },
       });
-      instance.open();
+      try {
+        instance.open();
+      } catch (err) {
+        throw new Error(`Razorpay checkout open failed: ${err?.message || "unknown error"}`);
+      }
     } catch (err) {
       let message = err?.message || "Unable to open checkout";
       try {
         const parsed = JSON.parse(message);
         message = parsed?.detail || parsed?.message || message;
       } catch {}
+      if (!message || message === "Unable to open checkout") {
+        try {
+          message = JSON.stringify(err);
+        } catch {}
+      }
       alert(message);
     } finally {
       setLoading(false);
