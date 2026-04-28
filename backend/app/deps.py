@@ -59,3 +59,39 @@ async def get_pro_user(user: User = Depends(get_current_user)) -> User:
     if user.plan != "pro":
         raise HTTPException(status_code=402, detail="Pro plan required")
     return user
+
+
+async def get_optional_user(
+    authorization: str | None = Header(default=None),
+    supabase: Client = Depends(get_supabase),
+) -> User | None:
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+
+    token = authorization.removeprefix("Bearer ").strip()
+    if not token:
+        return None
+
+    try:
+        user_response = supabase.auth.get_user(token)
+    except Exception:
+        return None
+
+    auth_user = getattr(user_response, "user", None)
+    user_id = getattr(auth_user, "id", None)
+    email = getattr(auth_user, "email", "") or ""
+    if not user_id:
+        return None
+
+    result = supabase.table("users").select("*").eq("id", user_id).maybe_single().execute()
+    row = result.data
+    if not row:
+        row = {
+            "id": user_id,
+            "email": email,
+            "plan": "free",
+            "exam": "JEE",
+        }
+        supabase.table("users").insert(row).execute()
+
+    return User(**row)

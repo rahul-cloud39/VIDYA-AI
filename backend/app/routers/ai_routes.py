@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from supabase import Client
 
 from ..ai import EXAM_SYSTEM_PROMPTS, generate_response, parse_json_text
-from ..deps import get_current_user, get_pro_user, get_supabase
+from ..deps import get_current_user, get_optional_user, get_pro_user, get_supabase
 from ..models import DoubtRequest, EvalRequest, FlashcardRequest, PlanRequest, QuestionRequest, User
 from ..utils import day_ago_iso
 
@@ -28,10 +28,11 @@ async def check_daily_quota(user: User, supabase: Client):
 @router.post("/doubt/stream")
 async def stream_doubt(
     data: DoubtRequest,
-    user: User = Depends(get_current_user),
+    user: User | None = Depends(get_optional_user),
     supabase: Client = Depends(get_supabase),
 ):
-    await check_daily_quota(user, supabase)
+    if user:
+        await check_daily_quota(user, supabase)
     system = EXAM_SYSTEM_PROMPTS.get(data.exam, EXAM_SYSTEM_PROMPTS["JEE"])
 
     def generate():
@@ -39,20 +40,21 @@ async def stream_doubt(
         answer = generate_response(full_prompt)
         yield answer.encode("utf-8")
 
-        supabase.table("doubt_sessions").insert(
-            {
-                "user_id": user.id,
-                "question": data.question,
-                "answer": answer,
-                "exam": data.exam,
-            }
-        ).execute()
+        if user:
+            supabase.table("doubt_sessions").insert(
+                {
+                    "user_id": user.id,
+                    "question": data.question,
+                    "answer": answer,
+                    "exam": data.exam,
+                }
+            ).execute()
 
     return StreamingResponse(generate(), media_type="text/plain")
 
 
 @router.post("/generate-question")
-async def generate_question(data: QuestionRequest, user: User = Depends(get_current_user)):
+async def generate_question(data: QuestionRequest, user: User | None = Depends(get_optional_user)):
     prompt = f"""
 Create one {data.exam} MCQ for subject {data.subject}, topic {data.topic}, difficulty {data.difficulty}.
 Return ONLY JSON:
