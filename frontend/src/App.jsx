@@ -139,6 +139,22 @@ function StatCard({ icon: Icon, label, value, muted }) {
   );
 }
 
+function DifferentiatorCard({ icon: Icon, title, text, bullets }) {
+  return (
+    <section className="differentiator-card">
+      <div className="panel-title">
+        <Icon size={20} /> {title}
+      </div>
+      <p>{text}</p>
+      <ul>
+        {bullets.map((bullet) => (
+          <li key={bullet}>{bullet}</li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function ExamSelector({ exam, onChange, compact = false }) {
   return (
     <div className={compact ? "row compact" : "row"}>
@@ -458,7 +474,7 @@ function Pricing({ user, onUpgraded, apiReady }) {
         <CreditCard size={20} /> Pro Plan
       </div>
       <div className="amount">Rs 199/mo</div>
-      <p>Unlimited doubts, mock tests, flashcards, UPSC answer evaluation, and study planner.</p>
+      <p>Unlimited doubts, AI teacher video explanations, mock tests, execution-focused study planning, and adaptive tutoring.</p>
       <button onClick={upgrade} disabled={loading || user?.plan === "pro" || !apiReady}>
         {user?.plan === "pro" ? "Already Pro" : loading ? "Opening Checkout..." : "Upgrade"}
       </button>
@@ -548,17 +564,57 @@ function App() {
       </nav>
       <section className="hero">
         <div>
-          <div className="hero-title">India's AI prep coach for JEE, NEET, and UPSC</div>
-          <div className="hero-copy">Adaptive practice, quick doubt-solving, and a study flow that learns what you keep missing.</div>
+          <div className="hero-title">Every student in India has an AI teacher</div>
+          <div className="hero-copy">
+            Not a chatbot. A learning brain that explains like a human tutor, adapts like a mentor, and pushes execution like a coach.
+          </div>
         </div>
         <div className="hero-controls">
           <ExamSelector exam={exam} onChange={changeExam} />
+        </div>
+      </section>
+      <section className="vision-band">
+        <div className="vision-badge">Synthesia-like teaching, built for Indian exam prep</div>
+        <div className="vision-copy">
+          Student asks a question. VidyaAI turns it into a video-style lesson with voice, steps, and a teacher personality that fits the moment.
         </div>
       </section>
       <section className="stats">
         <StatCard icon={GraduationCap} label="Selected Exam" value={stats.exam} />
         <StatCard icon={CreditCard} label="Plan" value={stats.plan} />
         <StatCard icon={BarChart3} label="Doubt Quota" value={stats.doubts} muted={session ? "Last 24 hours" : "Login required"} />
+      </section>
+      <section className="differentiators">
+        <DifferentiatorCard
+          icon={Brain}
+          title="AI Teacher Video Mode"
+          text="Turn any doubt into a teacher-style explanation with voice, step-by-step reasoning, and a real tutor feel."
+          bullets={[
+            "Friendly, strict, or funny teacher avatars",
+            "Hinglish plus regional language support",
+            "Image-based doubt solving with instant video explanation",
+          ]}
+        />
+        <DifferentiatorCard
+          icon={Target}
+          title="Auto Study Planner + Execution Engine"
+          text="Creates the plan, tracks completion, changes the schedule, and applies gentle pressure when the student drifts."
+          bullets={[
+            "Daily plan creation",
+            "Completion tracking and reminders",
+            "Adjusts by performance, not just calendar dates",
+          ]}
+        />
+        <DifferentiatorCard
+          icon={Sparkles}
+          title="Adaptive Learning Brain"
+          text="Learns from student behavior, tracks weaknesses, and explains the same concept in multiple ways until it clicks."
+          bullets={[
+            "Tracks weak topics automatically",
+            "Explains the same concept in 5 ways",
+            "Changes teaching style based on student response",
+          ]}
+        />
       </section>
       <div className="layout">
         <DoubtSolver exam={exam} apiReady={!missingApi} onExamChange={changeExam} />

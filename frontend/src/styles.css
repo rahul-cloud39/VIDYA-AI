@@ -54,6 +54,30 @@ nav {
   max-width: 720px;
 }
 
+.vision-band {
+  background: linear-gradient(135deg, #f3fbf7 0%, #ecf4ee 100%);
+  border: 1px solid #d9e5dd;
+  border-radius: 14px;
+  margin: 24px auto 0;
+  max-width: 1180px;
+  padding: 18px 24px;
+}
+
+.vision-badge {
+  color: #0f5f4c;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.vision-copy {
+  color: #304640;
+  font-size: 16px;
+  margin-top: 8px;
+  max-width: 900px;
+}
+
 .hero-controls {
   min-width: 280px;
 }
@@ -62,6 +86,39 @@ nav {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.differentiators {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 16px auto 0;
+  max-width: 1180px;
+  padding: 0 24px;
+}
+
+.differentiator-card {
+  background: #ffffff;
+  border: 1px solid #dfe5dc;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.differentiator-card p {
+  color: #48625b;
+  line-height: 1.55;
+  margin: 0 0 12px;
+}
+
+.differentiator-card ul {
+  color: #17352e;
+  line-height: 1.55;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.differentiator-card li + li {
+  margin-top: 6px;
 }
 
 .stat-card {
@@ -272,7 +329,8 @@ button:disabled {
 
   .stats,
   .layout,
-  .grid-form {
+  .grid-form,
+  .differentiators {
     grid-template-columns: 1fr;
   }
 }
