@@ -5,6 +5,7 @@ const browserOrigin = typeof window !== "undefined" ? window.location.origin : "
 const resolvedApiUrl = normalizedEnvApiUrl || browserOrigin;
 const isLocalhostOrigin =
   browserOrigin.includes("localhost") || browserOrigin.includes("127.0.0.1");
+const defaultBackendUrl = "https://vidya-ai-konw.onrender.com";
 
 export const API_URL = resolvedApiUrl;
 export const API_CONFIGURED = Boolean(normalizedEnvApiUrl) || isLocalhostOrigin;
@@ -62,6 +63,14 @@ export async function apiFetch(path, options = {}) {
     const canRetrySameOrigin = typeof window !== "undefined" && API_URL !== browserOrigin;
     if (!canRetrySameOrigin) throw err;
     response = await fetch(`${browserOrigin}${path}`, requestOptions);
+  }
+
+  const canRetryOnHostedBackend =
+    API_URL === browserOrigin &&
+    !normalizedEnvApiUrl &&
+    (response.status === 404 || response.status === 405);
+  if (canRetryOnHostedBackend) {
+    response = await fetch(`${defaultBackendUrl}${path}`, requestOptions);
   }
   return response;
 }
