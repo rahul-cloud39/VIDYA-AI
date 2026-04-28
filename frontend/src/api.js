@@ -2,13 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 
 const normalizedEnvApiUrl = (import.meta.env.VITE_API_URL || "").trim().replace(/\/+$/, "");
 const browserOrigin = typeof window !== "undefined" ? window.location.origin : "http://localhost:8000";
-const resolvedApiUrl = normalizedEnvApiUrl || browserOrigin;
+const defaultBackendUrl = "https://vidya-ai-konw.onrender.com";
 const isLocalhostOrigin =
   browserOrigin.includes("localhost") || browserOrigin.includes("127.0.0.1");
-const defaultBackendUrl = "https://vidya-ai-konw.onrender.com";
+const resolvedApiUrl = normalizedEnvApiUrl || (isLocalhostOrigin ? browserOrigin : defaultBackendUrl);
 
 export const API_URL = resolvedApiUrl;
-export const API_CONFIGURED = Boolean(normalizedEnvApiUrl) || isLocalhostOrigin;
+export const API_CONFIGURED = Boolean(normalizedEnvApiUrl) || isLocalhostOrigin || API_URL === defaultBackendUrl;
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
@@ -50,11 +50,6 @@ export async function apiJson(path, options = {}) {
 
 export async function apiFetch(path, options = {}) {
   const requestOptions = { ...options };
-  if (!normalizedEnvApiUrl && !isLocalhostOrigin) {
-    throw new Error(
-      "VITE_API_URL is missing. Set it in your frontend deployment env to backend URL, then redeploy frontend."
-    );
-  }
 
   let response;
   try {
@@ -65,10 +60,7 @@ export async function apiFetch(path, options = {}) {
     response = await fetch(`${browserOrigin}${path}`, requestOptions);
   }
 
-  const canRetryOnHostedBackend =
-    API_URL === browserOrigin &&
-    !normalizedEnvApiUrl &&
-    (response.status === 404 || response.status === 405);
+  const canRetryOnHostedBackend = API_URL !== defaultBackendUrl && (response.status === 404 || response.status === 405);
   if (canRetryOnHostedBackend) {
     response = await fetch(`${defaultBackendUrl}${path}`, requestOptions);
   }
