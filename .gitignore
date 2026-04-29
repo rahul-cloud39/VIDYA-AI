@@ -10,3 +10,5 @@ dist/
 build/
 *.zip
 VidyaAI-project-only-20260424-165818/
+
+.vercel
