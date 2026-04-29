@@ -835,6 +835,25 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
     setForm((prev) => ({ ...prev, exam }));
   }, [exam]);
 
+  function fallbackMcq() {
+    const topic = form.topic.trim() || "the selected topic";
+    const subject = form.subject.trim() || "General";
+    return {
+      question: `In ${subject}, which option is the best first step for solving a ${topic} question?`,
+      options: [
+        "Identify the concept, choose the matching rule, and apply it step by step.",
+        "Pick a formula randomly and substitute every number from the question.",
+        "Skip units and signs because only the final number matters.",
+        "Memorize the answer without understanding the logic.",
+      ],
+      answer_index: 0,
+      explanation:
+        "A reliable exam approach starts by identifying the concept, then selecting the correct rule or formula, and finally applying it carefully. This local practice question appears when the live generator is temporarily unavailable.",
+      topic,
+      difficulty: form.difficulty,
+    };
+  }
+
   async function generate() {
     if (!apiReady) {
       setMcq(null);
@@ -854,8 +873,8 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
       const nextMcq = await apiJson("/api/generate-question", { method: "POST", body: JSON.stringify(form) });
       setMcq(nextMcq);
     } catch (err) {
-      setMcq(null);
-      setError(err.message || "Unable to generate MCQ. Please try again.");
+      setMcq(fallbackMcq());
+      setError("Live generator is temporarily unavailable, so a practice MCQ was created locally.");
     } finally {
       setLoading(false);
     }
