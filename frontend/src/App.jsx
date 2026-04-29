@@ -3,19 +3,23 @@ import { createRoot } from "react-dom/client";
 import {
   BarChart3,
   Brain,
+  CheckCircle2,
   CreditCard,
   Clapperboard,
   Flame,
   GraduationCap,
   Image as ImageIcon,
   LineChart,
+  Lock,
   LogIn,
   Mic2,
   Languages,
+  Play,
   Send,
   Sparkles,
   Target,
   Video,
+  Volume2,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { API_CONFIGURED, apiFetch, apiJson, authHeaders, loadRazorpayScript, supabase } from "./api";
@@ -160,6 +164,337 @@ function DifferentiatorCard({ icon: Icon, title, text, bullets }) {
   );
 }
 
+function PlanBadge({ type = "free" }) {
+  return (
+    <span className={`plan-badge ${type}`}>
+      {type === "pro" ? <Lock size={12} /> : <CheckCircle2 size={12} />}
+      {type === "pro" ? "Pro" : "Free"}
+    </span>
+  );
+}
+
+function PlanComparison({ currentPlan = "free" }) {
+  const freeItems = [
+    "Daily AI doubts with free limit",
+    "Teacher video preview lessons",
+    "Adaptive MCQ practice",
+    "Weak topic dashboard",
+  ];
+  const proItems = [
+    "Unlimited doubts",
+    "AI teacher video explanations",
+    "Study planner and execution engine",
+    "Priority exam-prep tools",
+  ];
+
+  return (
+    <section className="plan-comparison" aria-label="Free and Pro feature comparison">
+      <div className="plan-column">
+        <div className="plan-column-head">
+          <PlanBadge type="free" />
+          <span>{currentPlan === "pro" ? "Still included" : "Your current plan"}</span>
+        </div>
+        <ul>
+          {freeItems.map((item) => (
+            <li key={item}>
+              <CheckCircle2 size={15} /> {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="plan-column pro">
+        <div className="plan-column-head">
+          <PlanBadge type="pro" />
+          <span>{currentPlan === "pro" ? "Active" : "Unlocks with upgrade"}</span>
+        </div>
+        <ul>
+          {proItems.map((item) => (
+            <li key={item}>
+              <CheckCircle2 size={15} /> {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 4) {
+  const words = String(text || "").split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
+
+  words.forEach((word) => {
+    const testLine = line ? `${line} ${word}` : word;
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = testLine;
+    }
+  });
+  if (line) lines.push(line);
+
+  lines.slice(0, maxLines).forEach((item, index) => {
+    const suffix = index === maxLines - 1 && lines.length > maxLines ? "..." : "";
+    ctx.fillText(`${item}${suffix}`, x, y + index * lineHeight);
+  });
+}
+
+function roundedCanvasRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+async function renderLessonVideo(lesson) {
+  if (typeof document === "undefined" || typeof MediaRecorder === "undefined") {
+    return "";
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 1280;
+  canvas.height = 720;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return "";
+
+  const stream = canvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+    ? "video/webm;codecs=vp9"
+    : "video/webm";
+  const recorder = new MediaRecorder(stream, { mimeType });
+  const chunks = [];
+  recorder.ondataavailable = (event) => {
+    if (event.data?.size) chunks.push(event.data);
+  };
+
+  const boardLines = (lesson.board_walkthrough || lesson.video_scene_plan || [])
+    .concat(lesson.steps?.map((step) => `${step.title}: ${step.explanation}`) || [])
+    .filter(Boolean)
+    .slice(0, 5);
+  const lines = boardLines.length
+    ? boardLines
+    : [lesson.ultra_simple_explanation, lesson.short_answer, lesson.memory_hook].filter(Boolean);
+
+  const durationMs = 3500;
+  const startedAt = performance.now();
+
+  function drawFrame(now) {
+    const elapsed = now - startedAt;
+    const progress = Math.min(1, elapsed / durationMs);
+    const activeCount = Math.max(1, Math.min(lines.length, Math.floor(progress * (lines.length + 1))));
+    const mouthOpen = Math.sin(elapsed / 90) > 0;
+    const pointerAngle = -0.2 + Math.sin(elapsed / 700) * 0.28;
+
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, "#17352e");
+    gradient.addColorStop(0.55, "#203640");
+    gradient.addColorStop(1, "#12231f");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "rgba(116, 211, 174, 0.14)";
+    ctx.beginPath();
+    ctx.arc(170, 105, 210, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#f6fbf8";
+    ctx.font = "700 28px Inter, Arial, sans-serif";
+    ctx.fillText(lesson.language || "Hinglish", 52, 58);
+    ctx.font = "800 32px Inter, Arial, sans-serif";
+    wrapCanvasText(ctx, lesson.title || "Teacher Lesson", 52, 110, 440, 40, 2);
+
+    ctx.save();
+    ctx.translate(240, 445 + Math.sin(elapsed / 420) * 8);
+    ctx.fillStyle = lesson.avatar_style === "strict" ? "#e6c0a2" : lesson.avatar_style === "funny" ? "#ffd69c" : "#f6d8b8";
+    ctx.beginPath();
+    ctx.arc(0, -145, 72, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#1b2624";
+    ctx.beginPath();
+    ctx.arc(-24, -152, 7, 0, Math.PI * 2);
+    ctx.arc(24, -152, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#8d3b36";
+    roundedCanvasRect(ctx, -17, -120, 34, mouthOpen ? 18 : 8, 8);
+    ctx.fill();
+    ctx.fillStyle = "#d8f1e3";
+    roundedCanvasRect(ctx, -72, -62, 144, 150, 34);
+    ctx.fill();
+    ctx.translate(48, -42);
+    ctx.rotate(pointerAngle);
+    ctx.fillStyle = "#f9ead8";
+    roundedCanvasRect(ctx, 0, 0, 180, 12, 6);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = "#eff8f2";
+    roundedCanvasRect(ctx, 500, 96, 700, 500, 16);
+    ctx.fill();
+    ctx.strokeStyle = "#c8d8cf";
+    ctx.lineWidth = 12;
+    ctx.stroke();
+
+    ctx.fillStyle = "#17352e";
+    ctx.font = "850 34px Inter, Arial, sans-serif";
+    wrapCanvasText(ctx, lesson.concept_summary || lesson.short_answer, 540, 160, 620, 42, 2);
+
+    ctx.strokeStyle = "#cfe0d7";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(540, 238);
+    ctx.lineTo(1160, 238);
+    ctx.stroke();
+
+    ctx.font = "600 25px Inter, Arial, sans-serif";
+    lines.slice(0, activeCount).forEach((line, index) => {
+      const y = 295 + index * 78;
+      ctx.fillStyle = "rgba(17, 106, 85, 0.1)";
+      roundedCanvasRect(ctx, 540, y - 34, 610, 58, 10);
+      ctx.fill();
+      ctx.fillStyle = "#116a55";
+      roundedCanvasRect(ctx, 540, y - 34, 8, 58, 4);
+      ctx.fill();
+      ctx.fillStyle = "#243d37";
+      wrapCanvasText(ctx, line, 565, y, 560, 29, 2);
+    });
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
+    roundedCanvasRect(ctx, 52, 650, 1176, 12, 6);
+    ctx.fill();
+    ctx.fillStyle = "#74d3ae";
+    roundedCanvasRect(ctx, 52, 650, 1176 * progress, 12, 6);
+    ctx.fill();
+
+    if (elapsed < durationMs) {
+      requestAnimationFrame(drawFrame);
+    } else if (recorder.state !== "inactive") {
+      recorder.stop();
+    }
+  }
+
+  return new Promise((resolve) => {
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: "video/webm" });
+      resolve(URL.createObjectURL(blob));
+    };
+    recorder.start();
+    requestAnimationFrame(drawFrame);
+  });
+}
+
+function TeacherVideoPreview({ lesson }) {
+  const [generatedVideoUrl, setGeneratedVideoUrl] = useState("");
+  const [rendering, setRendering] = useState(false);
+  const videoUrl = lesson.video_url || generatedVideoUrl;
+
+  useEffect(() => {
+    let active = true;
+    let objectUrl = "";
+
+    if (lesson.video_url) {
+      setGeneratedVideoUrl("");
+      return undefined;
+    }
+
+    setRendering(true);
+    setGeneratedVideoUrl("");
+    renderLessonVideo(lesson)
+      .then((url) => {
+        if (!active) {
+          if (url) URL.revokeObjectURL(url);
+          return;
+        }
+        objectUrl = url;
+        setGeneratedVideoUrl(url);
+      })
+      .catch(() => {
+        if (active) setGeneratedVideoUrl("");
+      })
+      .finally(() => {
+        if (active) setRendering(false);
+      });
+
+    return () => {
+      active = false;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [lesson]);
+
+  const boardLines = (lesson.board_walkthrough || lesson.video_scene_plan || []).slice(0, 3);
+  const activeLines = boardLines.length
+    ? boardLines
+    : [
+        lesson.ultra_simple_explanation,
+        lesson.short_answer,
+        lesson.memory_hook,
+      ].filter(Boolean).slice(0, 3);
+
+  if (videoUrl) {
+    return (
+      <div className="teacher-video-frame">
+        <video className="teacher-video-player" src={videoUrl} controls playsInline autoPlay muted loop />
+      </div>
+    );
+  }
+
+  return (
+    <div className="teacher-video-frame" aria-label="Generated teacher video preview">
+      <div className="video-topbar">
+        <span>{lesson.title || "Teacher lesson"}</span>
+        <span>{rendering ? "Rendering video" : lesson.language || "Hinglish"}</span>
+      </div>
+      {rendering ? (
+        <div className="video-rendering">
+          <div className="render-spinner" />
+          <div className="render-title">Preparing playable video</div>
+          <div className="render-copy">Your teacher lesson is being converted into a video file.</div>
+        </div>
+      ) : (
+        <div className="video-stage">
+          <div className={`video-avatar ${lesson.avatar_style || "friendly"}`}>
+            <div className="avatar-head">
+              <span className="avatar-eye left" />
+              <span className="avatar-eye right" />
+              <span className="avatar-mouth" />
+            </div>
+            <div className="avatar-body" />
+            <span className="avatar-pointer" />
+          </div>
+          <div className="video-board">
+            <div className="board-heading">{lesson.concept_summary || lesson.short_answer}</div>
+            <div className="board-lines">
+              {activeLines.map((line, index) => (
+                <div className="board-line" style={{ animationDelay: `${index * 0.45}s` }} key={`${line}-${index}`}>
+                  {line}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="video-controls">
+        <span className="control-dot">
+          <Play size={14} fill="currentColor" />
+        </span>
+        <div className="control-track">
+          <span />
+        </div>
+        <Volume2 size={16} />
+        <span className="control-time">00:24</span>
+      </div>
+    </div>
+  );
+}
+
 function TeacherStudio({ exam, apiReady }) {
   const [question, setQuestion] = useState("");
   const [language, setLanguage] = useState("Hinglish");
@@ -228,6 +563,7 @@ function TeacherStudio({ exam, apiReady }) {
     <section className="panel teacher-panel">
       <div className="panel-title">
         <Video size={20} /> AI Teacher Studio
+        <PlanBadge type="free" />
       </div>
       <div className="teacher-grid">
         <div className="teacher-inputs">
@@ -292,58 +628,61 @@ function TeacherStudio({ exam, apiReady }) {
         <div className="teacher-output">
           {lesson ? (
             <>
-              <div className="lesson-title">{lesson.title}</div>
-              <div className="lesson-summary">{lesson.concept_summary}</div>
-              <div className="lesson-pill-row">
-                <span className="lesson-pill">{lesson.language}</span>
-                <span className="lesson-pill">{lesson.avatar_style}</span>
-                <span className="lesson-pill">{lesson.student_level}</span>
-                <span className="lesson-pill">{lesson.teaching_mood}</span>
-              </div>
-              <div className="lesson-card reminder">
-                <strong>Why it matters</strong>
-                <p>{lesson.why_it_matters}</p>
-              </div>
-              <div className="lesson-card">
-                <strong>Ultra simple explanation</strong>
-                <p>{lesson.ultra_simple_explanation}</p>
-              </div>
-              <div className="lesson-card">
-                <strong>Analogy</strong>
-                <p>{lesson.analogy}</p>
-              </div>
-              <div className="lesson-card">
-                <strong>Short answer</strong>
-                <p>{lesson.short_answer}</p>
-              </div>
-              <div className="lesson-card">
-                <strong>Voice script</strong>
-                <p>{lesson.voiceover_script}</p>
-              </div>
-              <div className="lesson-section-title">Video scene plan</div>
-              <ul className="lesson-list">
-                {(lesson.video_scene_plan || []).map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <div className="lesson-card">
-                <strong>Board walkthrough</strong>
+              <TeacherVideoPreview lesson={lesson} />
+              <details className="lesson-notes">
+                <summary>Show lesson notes</summary>
+                <div className="lesson-title">{lesson.title}</div>
+                <div className="lesson-summary">{lesson.concept_summary}</div>
+                <div className="lesson-pill-row">
+                  <span className="lesson-pill">{lesson.language}</span>
+                  <span className="lesson-pill">{lesson.avatar_style}</span>
+                  <span className="lesson-pill">{lesson.student_level}</span>
+                  <span className="lesson-pill">{lesson.teaching_mood}</span>
+                </div>
+                <div className="lesson-card reminder">
+                  <strong>Why it matters</strong>
+                  <p>{lesson.why_it_matters}</p>
+                </div>
+                <div className="lesson-card">
+                  <strong>Ultra simple explanation</strong>
+                  <p>{lesson.ultra_simple_explanation}</p>
+                </div>
+                <div className="lesson-card">
+                  <strong>Analogy</strong>
+                  <p>{lesson.analogy}</p>
+                </div>
+                <div className="lesson-card">
+                  <strong>Short answer</strong>
+                  <p>{lesson.short_answer}</p>
+                </div>
+                <div className="lesson-card">
+                  <strong>Voice script</strong>
+                  <p>{lesson.voiceover_script}</p>
+                </div>
+                <div className="lesson-section-title">Video scene plan</div>
                 <ul className="lesson-list">
-                  {(lesson.board_walkthrough || []).map((item) => (
+                  {(lesson.video_scene_plan || []).map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
-              </div>
-              <div className="lesson-section-title">Step by step</div>
-              <div className="lesson-steps">
-                {(lesson.steps || []).map((step) => (
-                  <div className="lesson-step" key={step.title}>
-                    <strong>{step.title}</strong>
-                    <p>{step.explanation}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="lesson-grid">
+                <div className="lesson-card">
+                  <strong>Board walkthrough</strong>
+                  <ul className="lesson-list">
+                    {(lesson.board_walkthrough || []).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="lesson-section-title">Step by step</div>
+                <div className="lesson-steps">
+                  {(lesson.steps || []).map((step) => (
+                    <div className="lesson-step" key={step.title}>
+                      <strong>{step.title}</strong>
+                      <p>{step.explanation}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="lesson-grid">
                 <div className="lesson-card">
                   <strong>Examples</strong>
                   <ul className="lesson-list">
@@ -389,6 +728,7 @@ function TeacherStudio({ exam, apiReady }) {
                 <strong>Execution pressure</strong>
                 <p>{lesson.reminder_message}</p>
               </div>
+              </details>
             </>
           ) : (
             <div className="teacher-placeholder">
@@ -466,6 +806,7 @@ function DoubtSolver({ exam, apiReady, onExamChange }) {
     <section className="panel">
       <div className="panel-title">
         <Brain size={20} /> AI Doubt Solver
+        <PlanBadge type="free" />
       </div>
       <ExamSelector exam={exam} onChange={onExamChange} compact />
       <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Paste your doubt here..." />
@@ -524,6 +865,7 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
     <section className="panel">
       <div className="panel-title">
         <Sparkles size={20} /> Adaptive MCQ
+        <PlanBadge type="free" />
       </div>
       <div className="grid-form">
         {["exam", "subject", "topic", "difficulty"].map((field) => (
@@ -574,6 +916,7 @@ function Performance({ refreshKey }) {
     <section className="panel">
       <div className="panel-title">
         <LineChart size={20} /> Weak Topics
+        <PlanBadge type="free" />
       </div>
       <ResponsiveContainer width="100%" height={220}>
         <BarChart data={weak}>
@@ -621,7 +964,9 @@ function StudyPlanner({ exam, apiReady }) {
     <section className="panel">
       <div className="panel-title">
         <Target size={20} /> Study Planner
+        <PlanBadge type="pro" />
       </div>
+      <div className="pro-note">Pro feature: creates a day-by-day plan from weak topics and available study time.</div>
       <div className="grid-form">
         <input type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
         <input type="number" min="1" max="16" value={hours} onChange={(e) => setHours(e.target.value)} />
@@ -725,6 +1070,7 @@ function Pricing({ user, onUpgraded, apiReady }) {
       </div>
       <div className="amount">Rs 199/mo</div>
       <p>Unlimited doubts, AI teacher video explanations, mock tests, execution-focused study planning, and adaptive tutoring.</p>
+      <PlanComparison currentPlan={user?.plan === "pro" ? "pro" : "free"} />
       <button onClick={upgrade} disabled={loading || user?.plan === "pro" || !apiReady}>
         {user?.plan === "pro" ? "Already Pro" : loading ? "Opening Checkout..." : "Upgrade"}
       </button>
