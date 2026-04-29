@@ -7,6 +7,7 @@ from ..ai import (
     generate_response,
     generate_teacher_lesson,
     parse_json_text,
+    question_fallback,
     teacher_lesson_fallback,
 )
 from ..deps import get_current_user, get_optional_user, get_pro_user, get_supabase
@@ -97,7 +98,7 @@ async def teacher_explain(
 
 
 @router.post("/generate-question")
-async def generate_question(data: QuestionRequest, user: User | None = Depends(get_optional_user)):
+async def generate_question(data: QuestionRequest):
     prompt = f"""
 Create one {data.exam} MCQ for subject {data.subject}, topic {data.topic}, difficulty {data.difficulty}.
 Return ONLY JSON:
@@ -110,8 +111,34 @@ Return ONLY JSON:
   "difficulty": "{data.difficulty}"
 }}
 """
-    response = generate_response(prompt)
-    return parse_json_text(response)
+    try:
+        response = generate_response(prompt)
+        question = parse_json_text(response)
+    except Exception:
+        question = parse_json_text(
+            question_fallback(
+                exam=data.exam,
+                subject=data.subject,
+                topic=data.topic,
+                difficulty=data.difficulty,
+            )
+        )
+
+    if not isinstance(question.get("options"), list) or len(question["options"]) < 2:
+        question = parse_json_text(
+            question_fallback(
+                exam=data.exam,
+                subject=data.subject,
+                topic=data.topic,
+                difficulty=data.difficulty,
+            )
+        )
+    question["topic"] = question.get("topic") or data.topic
+    question["difficulty"] = question.get("difficulty") or data.difficulty
+    question["answer_index"] = int(question.get("answer_index", 0))
+    if question["answer_index"] < 0 or question["answer_index"] >= len(question["options"]):
+        question["answer_index"] = 0
+    return question
 
 
 @router.post("/study-plan")

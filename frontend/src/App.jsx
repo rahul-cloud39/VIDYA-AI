@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  AlertCircle,
   BarChart3,
   Brain,
   CheckCircle2,
@@ -15,9 +16,11 @@ import {
   Mic2,
   Languages,
   Play,
+  RotateCcw,
   Send,
   Sparkles,
   Target,
+  Trophy,
   Video,
   Volume2,
 } from "lucide-react";
@@ -824,6 +827,9 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
   const [mcq, setMcq] = useState(null);
   const [selected, setSelected] = useState(null);
   const [checked, setChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [saveStatus, setSaveStatus] = useState("");
 
   useEffect(() => {
     setForm((prev) => ({ ...prev, exam }));
@@ -832,14 +838,26 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
   async function generate() {
     if (!apiReady) {
       setMcq(null);
+      setError("Backend API is not configured.");
+      return;
+    }
+    if (!form.subject.trim() || !form.topic.trim()) {
+      setError("Subject and topic are required.");
       return;
     }
     setSelected(null);
     setChecked(false);
+    setSaveStatus("");
+    setError("");
+    setLoading(true);
     try {
-      setMcq(await apiJson("/api/generate-question", { method: "POST", body: JSON.stringify(form) }));
+      const nextMcq = await apiJson("/api/generate-question", { method: "POST", body: JSON.stringify(form) });
+      setMcq(nextMcq);
     } catch (err) {
       setMcq(null);
+      setError(err.message || "Unable to generate MCQ. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -847,55 +865,114 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
     if (selected == null || checked || !mcq) return;
     const correct = selected === mcq.answer_index;
     setChecked(true);
-    await apiJson("/api/attempts", {
-      method: "POST",
-      body: JSON.stringify({
-        exam: form.exam,
-        subject: form.subject,
-        topic: mcq.topic || form.topic,
-        correct,
-        difficulty: mcq.difficulty || form.difficulty,
-        time_taken: 45,
-      }),
-    });
-    onAttemptSaved?.();
+    setSaveStatus("");
+    try {
+      await apiJson("/api/attempts", {
+        method: "POST",
+        body: JSON.stringify({
+          exam: form.exam,
+          subject: form.subject,
+          topic: mcq.topic || form.topic,
+          correct,
+          difficulty: mcq.difficulty || form.difficulty,
+          time_taken: 45,
+        }),
+      });
+      setSaveStatus("Saved to your performance dashboard.");
+      onAttemptSaved?.();
+    } catch {
+      setSaveStatus("Result shown here. Log in to save attempts to your dashboard.");
+    }
   }
 
+  const selectedCorrect = checked && selected === mcq?.answer_index;
+
   return (
-    <section className="panel">
-      <div className="panel-title">
-        <Sparkles size={20} /> Adaptive MCQ
+    <section className="panel mcq-panel">
+      <div className="panel-title mcq-title">
+        <span><Sparkles size={20} /> Adaptive MCQ</span>
         <PlanBadge type="free" />
       </div>
-      <div className="grid-form">
-        {["exam", "subject", "topic", "difficulty"].map((field) => (
-          <input key={field} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
-        ))}
+      <div className="mcq-meta-row">
+        <span>{exam}</span>
+        <span>{form.difficulty}</span>
+        <span>Instant practice</span>
       </div>
-      <button onClick={generate} disabled={!apiReady}>Generate Question</button>
+      <div className="mcq-form">
+        <label>
+          Exam
+          <input value={form.exam} readOnly />
+        </label>
+        <label>
+          Subject
+          <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} />
+        </label>
+        <label>
+          Topic
+          <input value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })} />
+        </label>
+        <label>
+          Difficulty
+          <select value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
+            <option value="easy">easy</option>
+            <option value="medium">medium</option>
+            <option value="hard">hard</option>
+          </select>
+        </label>
+      </div>
+      <div className="mcq-actions">
+        <button onClick={generate} disabled={!apiReady || loading}>
+          {loading ? <RotateCcw className="spin-icon" size={16} /> : <Sparkles size={16} />}
+          {loading ? "Generating..." : "Generate Question"}
+        </button>
+        {mcq && (
+          <button className="ghost" onClick={generate} disabled={loading}>
+            <RotateCcw size={16} /> New
+          </button>
+        )}
+      </div>
+      {error && (
+        <div className="error-box mcq-error">
+          <AlertCircle size={16} /> {error}
+        </div>
+      )}
       {mcq && (
-        <div className="question">
-          <strong>{mcq.question}</strong>
-          {mcq.options?.map((option, index) => (
-            <button
-              type="button"
-              className={`option-btn ${selected === index ? "option-selected" : ""}`}
-              onClick={() => setSelected(index)}
-              key={`${option}-${index}`}
-            >
-              {String.fromCharCode(65 + index)}. {option}
-            </button>
-          ))}
-          <div className="row">
-            <button onClick={submitAttempt} disabled={selected == null || checked}>
-              Submit Answer
-            </button>
+        <div className="mcq-card">
+          <div className="mcq-card-head">
+            <div>
+              <span className="mcq-kicker">{mcq.topic || form.topic}</span>
+              <strong>{mcq.question}</strong>
+            </div>
+            <span className="mcq-difficulty">{mcq.difficulty || form.difficulty}</span>
           </div>
+          <div className="mcq-options">
+            {(mcq.options || []).map((option, index) => {
+              const isSelected = selected === index;
+              const isCorrect = checked && index === mcq.answer_index;
+              const isWrong = checked && isSelected && index !== mcq.answer_index;
+              return (
+                <button
+                  type="button"
+                  className={`mcq-option ${isSelected ? "selected-option" : ""} ${isCorrect ? "correct-option" : ""} ${isWrong ? "wrong-option" : ""}`}
+                  onClick={() => !checked && setSelected(index)}
+                  key={`${option}-${index}`}
+                >
+                  <span>{String.fromCharCode(65 + index)}</span>
+                  <p>{option}</p>
+                </button>
+              );
+            })}
+          </div>
+          <button className="mcq-submit" onClick={submitAttempt} disabled={selected == null || checked}>
+            <Trophy size={16} /> {checked ? "Answer submitted" : "Check Answer"}
+          </button>
           {checked && (
-            <div className="answer">
-              {selected === mcq.answer_index ? "Correct." : `Not quite. Correct option: ${String.fromCharCode(65 + mcq.answer_index)}.`}
-              {" "}
-              {mcq.explanation}
+            <div className={`mcq-result ${selectedCorrect ? "correct" : "wrong"}`}>
+              <strong>
+                {selectedCorrect ? "Correct." : `Not quite. Correct option: ${String.fromCharCode(65 + mcq.answer_index)}.`}
+              </strong>
+              <p>{mcq.explanation}</p>
+              {saveStatus && <span>{saveStatus}</span>}
             </div>
           )}
         </div>

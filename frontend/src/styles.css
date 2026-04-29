@@ -637,9 +637,11 @@ button {
 }
 
 input,
-textarea {
+textarea,
+select {
   border: 1px solid #cbd4ca;
   border-radius: 6px;
+  background: #ffffff;
   font: inherit;
   min-height: 42px;
   padding: 10px 12px;
@@ -649,6 +651,10 @@ textarea {
 textarea {
   min-height: 150px;
   resize: vertical;
+}
+
+select {
+  cursor: pointer;
 }
 
 button {
@@ -688,6 +694,202 @@ button:disabled {
   margin-top: 14px;
   padding: 14px;
   white-space: pre-wrap;
+}
+
+.mcq-panel {
+  overflow: hidden;
+}
+
+.mcq-title {
+  justify-content: space-between;
+}
+
+.mcq-title span:first-child {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.mcq-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -4px 0 14px;
+}
+
+.mcq-meta-row span {
+  background: #edf3ef;
+  border: 1px solid #d5e2da;
+  border-radius: 999px;
+  color: #17352e;
+  font-size: 12px;
+  font-weight: 850;
+  padding: 6px 9px;
+}
+
+.mcq-form {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mcq-form label {
+  color: #48625b;
+  display: grid;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 6px;
+}
+
+.mcq-form input,
+.mcq-form select {
+  color: #17352e;
+  font-weight: 650;
+}
+
+.mcq-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mcq-actions button {
+  flex: 1;
+}
+
+.spin-icon {
+  animation: spin 0.9s linear infinite;
+}
+
+.mcq-error {
+  align-items: flex-start;
+  display: flex;
+  gap: 8px;
+}
+
+.mcq-card {
+  background: linear-gradient(180deg, #f8fcf9 0%, #ffffff 100%);
+  border: 1px solid #dcebe0;
+  border-radius: 8px;
+  margin-top: 14px;
+  padding: 14px;
+}
+
+.mcq-card-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.mcq-card-head strong {
+  color: #17352e;
+  display: block;
+  font-size: 18px;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.mcq-kicker,
+.mcq-difficulty {
+  color: #0f5f4c;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.mcq-difficulty {
+  background: #eaf7ef;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  padding: 6px 9px;
+}
+
+.mcq-options {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.mcq-option {
+  align-items: flex-start;
+  background: #ffffff;
+  border: 1px solid #dfe5dc;
+  color: #17352e;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 32px 1fr;
+  justify-content: start;
+  min-height: 0;
+  padding: 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.mcq-option span {
+  align-items: center;
+  background: #edf3ef;
+  border-radius: 50%;
+  display: inline-flex;
+  font-weight: 900;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+.mcq-option p {
+  line-height: 1.45;
+  margin: 4px 0 0;
+}
+
+.selected-option {
+  border-color: #116a55;
+  box-shadow: 0 0 0 2px rgba(17, 106, 85, 0.12);
+}
+
+.correct-option {
+  background: #ecf8f1;
+  border-color: #1f8a70;
+}
+
+.wrong-option {
+  background: #fff2f2;
+  border-color: #d77979;
+}
+
+.mcq-submit {
+  margin-top: 12px;
+  width: 100%;
+}
+
+.mcq-result {
+  border-radius: 8px;
+  line-height: 1.5;
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.mcq-result.correct {
+  background: #ecf8f1;
+  border: 1px solid #b8ddc8;
+}
+
+.mcq-result.wrong {
+  background: #fff6e6;
+  border: 1px solid #ead2a4;
+}
+
+.mcq-result p {
+  margin: 6px 0 0;
+}
+
+.mcq-result span {
+  color: #5a756d;
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  margin-top: 8px;
 }
 
 .grid-form {
@@ -832,8 +1034,18 @@ button:disabled {
   .differentiators,
   .teacher-grid,
   .lesson-grid,
-  .plan-comparison {
+  .plan-comparison,
+  .mcq-form {
     grid-template-columns: 1fr;
+  }
+
+  .mcq-card-head,
+  .mcq-actions {
+    flex-direction: column;
+  }
+
+  .mcq-actions button {
+    width: 100%;
   }
 
   .teacher-panel {

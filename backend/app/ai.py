@@ -187,6 +187,37 @@ def teacher_lesson_fallback(
     return json.dumps(lesson)
 
 
+def question_fallback(
+    *,
+    exam: str,
+    subject: str,
+    topic: str,
+    difficulty: str = "medium",
+) -> str:
+    topic_label = topic.strip()[:80] or "the selected topic"
+    subject_label = subject.strip()[:60] or "General"
+    question = {
+        "question": (
+            f"In {subject_label}, which option best describes the core idea behind {topic_label}?"
+        ),
+        "options": [
+            "Identify the concept, choose the matching rule, and apply it step by step.",
+            "Memorize the final answer without checking the question data.",
+            "Ignore units, signs, and keywords because they rarely matter.",
+            "Use any formula from the chapter even if the variables do not match.",
+        ],
+        "answer_index": 0,
+        "explanation": (
+            "The safest exam method is to first identify what the question is testing, then choose the correct rule "
+            "or formula, and finally apply it carefully. This fallback question appears when the live AI model is "
+            "temporarily unavailable."
+        ),
+        "topic": topic_label,
+        "difficulty": difficulty,
+    }
+    return json.dumps(question)
+
+
 def parse_json_text(text: str):
     try:
         return json.loads(text)
