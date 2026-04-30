@@ -1369,10 +1369,7 @@ export default function App() {
           <p>{answer}</p>
         </div>
       )}
-    </div>
-  );
-}
-import {useState } from "react";
+    </div 
 export default function AITeacher() {
   const [ question,setQuestion ] =
     useState("")
