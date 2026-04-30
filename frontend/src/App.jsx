@@ -1323,34 +1323,51 @@ function App() {
 createRoot(document.getElementById("root")).render(<App />);
 // components/AI Teacher Studio
 import { useState } from "react";
-export default function AITEACHER () {
-  const[question, setQuestion]=useState("");
-  const[answer, setAnswer]=useState("");
-  const ask AI = async ()=>(/api/ask",{method:"POST",body:JSON.stringify({question})});
-    const data = await response.json();
-    setAnswer(data.answer);
-    // voice 
-    const speech = new 
-    speechSynthesisUtterence(data.answer);
-    window.speechSynthesis.speak(speech);
+
+export default function App() {
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+
+  const askAI = async () => {
+    try {
+      const response = await fetch("/api/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ question }),
+      });
+
+      const data = await response.json();
+      setAnswer(data.answer);
+
+      // voice
+      const speech = new SpeechSynthesisUtterance(data.answer);
+      window.speechSynthesis.speak(speech);
+    } catch (err) {
+      console.error(err);
+    }
   };
+
   return (
-   < div style ={{ padding: "20px"}}>
-      <h2>AITeacher Studio</h2>
-      <input 
-      value ={question}
-      onChange={(e)=>setQuestion(e.target.value)}
-      placeholder="Ask your question here"
+    <div style={{ padding: "20px" }}>
+      <h2>AI Teacher Studio</h2>
+
+      <input
+        value={question}
+        onChange={(e) => setQuestion(e.target.value)}
+        placeholder="Ask your question here"
       />
-      <button onClick={askAI}>Ask AITeacher</button>
-      { answer &&(
-        <div style ={{ marginTop: "20px"}}>
-          < img src="/ teacher.png"
-          width={120}/>
+
+      <button onClick={askAI}>Ask AI Teacher</button>
+
+      {answer && (
+        <div style={{ marginTop: "20px" }}>
+          <img src="/teacher.png" width={120} />
           <p>{answer}</p>
         </div>
       )}
-   </div>
+    </div>
   );
 }
 import{ useState } from "react";
