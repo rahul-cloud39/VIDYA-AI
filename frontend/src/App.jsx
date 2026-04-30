@@ -1323,26 +1323,26 @@ function App() {
 createRoot(document.getElementById("root")).render(<App />);
 // components/AI Teacher Studio
 import { useState } from "react";
-export default function AI TEACHER () {
-  const[question, setquestion]=usestate("");
-  const[answer, setanswer]=usestate("");
+export default function AITEACHER () {
+  const[question, setQuestion]=useState("");
+  const[answer, setAnswer]=useState("");
   const ask AI = async ()=>(/api/ask",{method:"POST",body:JSON.stringify({question})});
     const data = await response.json();
-    setanswer(data.answer);
+    setAnswer(data.answer);
     // voice 
     const speech = new 
-    speechsynthesisutterence(data.answer);
-    window.speechsynthesis.speak(speech);
+    speechSynthesisUtterence(data.answer);
+    window.speechSynthesis.speak(speech);
   };
   return (
    < div style ={{ padding: "20px"}}>
-      <h2>AI Teacher Studio</h2>
+      <h2>AITeacher Studio</h2>
       <input 
       value ={question}
-      onChange={(e)=>setquestion(e.target.value)}
+      onChange={(e)=>setQuestion(e.target.value)}
       placeholder="Ask your question here"
       />
-      <button onClick={askAI}>Ask AI Teacher</button>
+      <button onClick={askAI}>Ask AITeacher</button>
       { answer &&(
         <div style ={{ marginTop: "20px"}}>
           < img src="/ teacher.png"
@@ -1353,17 +1353,17 @@ export default function AI TEACHER () {
    </div>
   );
 }
-import{ usestate } from "react";
-export default function AI teacher () { 
-  const [question , setquestion] = usestate("");
-  const[ answer, setanswer]= usestate("");
+import{ useState } from "react";
+export default function AIteacher () { 
+  const [question , setQuestion] = useState("");
+  const[ answer, setAnswer]= useState("");
   const speak = ( text ) => {
     const speech = new
-    speechsynthesisutterence(text);
+    speechSynthesisUtterence(text);
     speech. lang= "en-IN";// Indian accent
     speech.rate =1 speech.pitch =1
-    window. speechsynthesis.cancel();//
-    previous stopwindow . speechsynthesis.speak(speech);
+    window. speechSynthesis.cancel();//
+    previous stopwindow . speechSynthesis.speak(speech);
   };
   const askAI = async () => {
     const response = await fetch("/api/ask",{
@@ -1381,7 +1381,7 @@ export default function AI teacher () {
       <input
     value ={question}
     onchange={(e)=>
-      setquestion(e.target.value )}
+      setQuestion(e.target.value )}
       placeholder="ask your doubts ....."
       />
       < button on click ={askAI}>ask</button>
