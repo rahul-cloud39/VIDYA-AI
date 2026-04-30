@@ -1321,3 +1321,71 @@ function App() {
 }
 
 createRoot(document.getElementById("root")).render(<App />);
+// components/AI Teacher Studio
+import { useState } from "react";
+export default function AI TEACHER () {
+  const[question, setquestion]=usestate("");
+  const[answer, setanswer]=usestate("");
+  const ask AI = async ()=>(/api/ask",{method:"POST",body:JSON.stringify({question})});
+    const data = await response.json();
+    setanswer(data.answer);
+    // voice 
+    const speech = new 
+    speechsynthesisutterence(data.answer);
+    window.speechsynthesis.speak(speech);
+  };
+  return (
+   < div style ={{ padding: "20px"}}>
+      <h2>AI Teacher Studio</h2>
+      <input 
+      value ={question}
+      onChange={(e)=>setquestion(e.target.value)}
+      placeholder="Ask your question here"
+      />
+      <button onClick={askAI}>Ask AI Teacher</button>
+      { answer &&(
+        <div style ={{ marginTop: "20px"}}>
+          < img src="/ teacher.png"
+          width={120}/>
+          <p>{answer}</p>
+        </div>
+      )}
+   </div>
+  );
+}
+import{ usestate } from "react";
+export default function AI teacher () { 
+  const [question , setquestion] = usestate("");
+  const[ answer, setanswer]= usestate("");
+  const speak = ( text ) => {
+    const speech = new
+    speechsynthesisutterence(text);
+    speech. lang= "en-IN";// Indian accent
+    speech.rate =1 speech.pitch =1
+    window. speechsynthesis.cancel();//
+    previous stopwindow . speechsynthesis.speak(speech);
+  };
+  const askAI = async () => {
+    const response = await fetch("/api/ask",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({question})
+    });
+    const data = await response.json();
+    setanswer(data.answer);
+    speak(data.answer);
+  };
+  call };
+  return(
+    <div>
+      <input
+    value ={question}
+    onchange={(e)=>
+      setquestion(e.target.value )}
+      placeholder="ask your doubts ....."
+      />
+      < button on click ={askAI}>ask</button>
+      <p>{answer}</p>
+      </div>
+  );
+    }
