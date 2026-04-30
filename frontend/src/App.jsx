@@ -1343,7 +1343,9 @@ export default function App() {
 
       // voice
       const speech = new SpeechSynthesisUtterance(data.answer);
+      window.speechSynthesis.cancel();
       window.speechSynthesis.speak(speech);
+
     } catch (err) {
       console.error(err);
     }
@@ -1370,18 +1372,22 @@ export default function App() {
     </div>
   );
 }
-import{ useState } from "react";
-export default function AIteacher () { 
-  const [question , setQuestion] = useState("");
-  const[ answer, setAnswer]= useState("");
-  const speak = ( text ) => {
-    const speech = new
-    speechSynthesisUtterence(text);
-    speech. lang= "en-IN";// Indian accent
-    speech.rate =1 speech.pitch =1
-    window. speechSynthesis.cancel();//
-    previous stopwindow . speechSynthesis.speak(speech);
+import {useState } from "react";
+export default function AITeacher() {
+  const [ question,setQuestion ] =
+    useState("")
+  const[answer,setAnswer ]=
+    useState("");
+  const speakText = (text) => {
+    const speech = new 
+      speechSynthesisUtterence(text);
+    speech.lang = "en-IN";
+    speech.rate=1;
+    speech.pitch=1;
+    window. speechSynthesis.cancel();
+    window. speechSynthesis.speak(speech);
   };
+}
   const askAI = async () => {
     const response = await fetch("/api/ask",{
       method:"POST",
