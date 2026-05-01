@@ -1241,6 +1241,14 @@ function App() {
     }
   }
 
+  const userEmail = session?.user?.email || "";
+  const displayName = profile?.user?.name || userEmail.split("@")[0] || "Student";
+  const isLoggedIn = Boolean(session);
+
+  function scrollToSection(selector) {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
     <main className="dashboard-app">
       {missingSupabase && (
@@ -1256,31 +1264,38 @@ function App() {
       <aside className="sidebar">
         <div className="brand"><Flame size={22} /> VidyaAI</div>
         <div className="sidebar-menu">
-          <a className="active"><BarChart3 size={18} /> Dashboard</a>
-          <a><Brain size={18} /> Ask Doubt</a>
-          <a><Video size={18} /> AI Teacher</a>
-          <a><Target size={18} /> Study Planner</a>
-          <a><LineChart size={18} /> My Progress</a>
-          <a><Trophy size={18} /> Test Series</a>
-          <a><Sparkles size={18} /> Achievements</a>
+          <button type="button" className="active" onClick={() => scrollToSection(".hero")}><BarChart3 size={18} /> Dashboard</button>
+          <button type="button" onClick={() => scrollToSection(".panel")}><Brain size={18} /> Ask Doubt</button>
+          <button type="button" onClick={() => scrollToSection(".teacher-panel")}><Video size={18} /> AI Teacher</button>
+          <button type="button" onClick={() => scrollToSection(".layout")}><Target size={18} /> Study Planner</button>
+          <button type="button" onClick={() => scrollToSection(".layout")}><LineChart size={18} /> My Progress</button>
+          <button type="button" onClick={() => scrollToSection(".mcq-panel")}><Trophy size={18} /> Test Series</button>
+          <button type="button" onClick={() => scrollToSection(".differentiators")}><Sparkles size={18} /> Achievements</button>
         </div>
         <div className="upgrade-card">
           <div>👑 Upgrade to Pro</div>
           <p>Unlock unlimited doubts, PYQ tests and AI videos.</p>
-          <button>Upgrade Now →</button>
+          <button type="button" onClick={() => scrollToSection(".price")}>Upgrade Now →</button>
         </div>
       </aside>
       <div className="dashboard-main">
       <nav className="topbar">
         <div>
-          <div className="welcome-title">👋 Welcome back, Aman!</div>
-          <div className="welcome-subtitle">Let’s continue your learning journey today.</div>
+          <div className="welcome-title">{isLoggedIn ? `👋 Welcome back, ${displayName}!` : "👋 Welcome to VidyaAI"}</div>
+          <div className="welcome-subtitle">{isLoggedIn ? "Let’s continue your learning journey today." : "Login to save progress, unlock tests, and personalize your AI teacher."}</div>
         </div>
         <div className="topbar-actions">
-          <button className="ghost">👑 Upgrade to Pro</button>
+          <button type="button" className="ghost" onClick={() => scrollToSection(".price")}>👑 Upgrade to Pro</button>
           <div className="profile-chip">
-            <span>Aman Verma</span>
-            <small>{exam} Aspirant</small>
+            {isLoggedIn ? (
+              <>
+                <span>{displayName}</span>
+                <small>{exam} Aspirant</small>
+                <button type="button" className="profile-action" onClick={() => supabase.auth.signOut()}>Sign out</button>
+              </>
+            ) : (
+              <AuthPanel session={session} canAuth={!missingSupabase} />
+            )}
           </div>
         </div>
       </nav>

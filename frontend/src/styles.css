@@ -258,21 +258,29 @@ button:disabled { cursor: not-allowed; opacity: .48; }
   gap: 8px;
 }
 
-.sidebar-menu a {
+.sidebar-menu button {
   align-items: center;
+  background: transparent;
+  border: 0;
   border-radius: 12px;
+  box-shadow: none;
   color: #56617a;
   display: flex;
   font-size: 14px;
   font-weight: 750;
   gap: 12px;
+  justify-content: flex-start;
+  min-height: 44px;
   padding: 12px 14px;
+  text-align: left;
+  width: 100%;
 }
 
-.sidebar-menu a.active,
-.sidebar-menu a:hover {
+.sidebar-menu button.active,
+.sidebar-menu button:hover {
   background: #eef0ff;
   color: #4f46e5;
+  transform: none;
 }
 
 .upgrade-card {
@@ -340,8 +348,23 @@ button:disabled { cursor: not-allowed; opacity: .48; }
   border-radius: 16px;
   box-shadow: 0 12px 36px rgba(15, 23, 42, 0.05);
   display: grid;
-  min-width: 150px;
+  min-width: 170px;
   padding: 10px 14px;
+}
+
+.profile-chip .auth {
+  align-items: stretch;
+  display: grid;
+  gap: 8px;
+  min-width: 280px;
+}
+
+.profile-chip input {
+  min-height: 38px;
+}
+
+.profile-chip .auth button {
+  min-height: 38px;
 }
 
 .profile-chip span {
@@ -353,6 +376,16 @@ button:disabled { cursor: not-allowed; opacity: .48; }
 .profile-chip small {
   color: #667085;
   font-weight: 700;
+}
+
+.profile-action {
+  background: transparent !important;
+  border: 0;
+  box-shadow: none !important;
+  color: #ef4444 !important;
+  justify-content: flex-start;
+  min-height: 0;
+  padding: 6px 0 0;
 }
 
 .dashboard-app .hero,
