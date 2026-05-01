@@ -815,3 +815,60 @@ button:disabled { cursor: not-allowed; opacity: .48; }
     grid-template-columns: 1fr;
   }
 }
+
+.dashboard-app {
+  background: radial-gradient(circle at 18% 0%, rgba(99,102,241,.08), transparent 28%), radial-gradient(circle at 88% 12%, rgba(14,165,233,.08), transparent 24%), linear-gradient(180deg, #fbfcff 0%, #f4f6ff 100%);
+}
+
+.sidebar {
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(18px);
+  box-shadow: 18px 0 60px rgba(31,41,55,.04);
+}
+
+.sidebar .brand { letter-spacing: -.06em; }
+.sidebar .brand svg { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 48%, #06b6d4 100%); box-shadow: 0 14px 34px rgba(79,70,229,.24); }
+.sidebar-menu button { position: relative; transition: background .18s ease, color .18s ease, transform .18s ease; }
+.sidebar-menu button:hover { transform: translateX(2px); }
+.sidebar-menu button.active::before { background: linear-gradient(180deg, #4f46e5, #06b6d4); border-radius: 999px; content: ""; height: 24px; left: 0; position: absolute; width: 4px; }
+
+.topbar {
+  align-items: center;
+  background: rgba(255,255,255,.74);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(226,232,240,.95);
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(15,23,42,.045);
+  margin-bottom: 24px;
+  padding: 18px 20px;
+}
+
+.welcome-title { font-size: clamp(24px, 3vw, 34px); }
+.welcome-subtitle { font-weight: 650; }
+.profile-chip { background: linear-gradient(180deg, #fff, #f8faff); }
+.dashboard-app .hero { padding-top: 0; }
+.dashboard-app .hero > div:first-child { background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(248,250,255,.9)), radial-gradient(circle at 12% 12%, rgba(79,70,229,.11), transparent 32%), radial-gradient(circle at 88% 20%, rgba(6,182,212,.1), transparent 30%); border: 1px solid rgba(226,232,240,.95); }
+.dashboard-app .hero-title { background: linear-gradient(135deg, #111827 0%, #312e81 58%, #0369a1 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dashboard-app .hero-proof span { background: #fff; box-shadow: 0 10px 24px rgba(79,70,229,.06); }
+.dashboard-app .hero-controls, .dashboard-app .stat-card, .dashboard-app .vision-band, .dashboard-app .panel, .dashboard-app .differentiator-card, .pricing-card { transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.dashboard-app .hero-controls:hover, .dashboard-app .stat-card:hover, .dashboard-app .panel:hover, .dashboard-app .differentiator-card:hover, .pricing-card:hover { border-color: #d7ddff; box-shadow: 0 24px 70px rgba(79,70,229,.1); transform: translateY(-2px); }
+.dashboard-app .stat-card { overflow: hidden; position: relative; }
+.dashboard-app .stat-card::after { background: linear-gradient(135deg, rgba(79,70,229,.08), rgba(6,182,212,.04)); border-radius: 50%; content: ""; height: 120px; position: absolute; right: -42px; top: -54px; width: 120px; }
+.dashboard-app .stat-value, .amount { background: linear-gradient(135deg, #4f46e5, #06b6d4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dashboard-app .panel { background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(250,252,255,.94)), radial-gradient(circle at 100% 0%, rgba(79,70,229,.055), transparent 28%); }
+.panel-title svg { color: #4f46e5; }
+.dashboard-app button { background: linear-gradient(135deg, #4f46e5 0%, #6d5dfc 52%, #06b6d4 100%); border: 1px solid rgba(255,255,255,.36); box-shadow: 0 14px 34px rgba(79,70,229,.22); }
+.dashboard-app button:hover:not(:disabled) { box-shadow: 0 18px 44px rgba(79,70,229,.3); }
+.dashboard-app .ghost { background: #fff; box-shadow: 0 12px 26px rgba(79,70,229,.06); }
+.mcq-card, .pricing-card, .mock-instructions, .mock-status div, .section-analysis div, .lesson-card, .lesson-step { box-shadow: 0 14px 34px rgba(15,23,42,.045); }
+.mcq-option, .option-btn { transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.mcq-option:hover, .option-btn:hover { border-color: #c7d2fe; box-shadow: 0 12px 28px rgba(79,70,229,.08); transform: translateY(-1px); }
+.pricing-card.featured { position: relative; }
+.pricing-card.featured::before { background: linear-gradient(135deg, #f59e0b, #f97316); border-radius: 999px; color: #fff; content: "Best Value"; font-size: 12px; font-weight: 950; padding: 7px 10px; position: absolute; right: 16px; top: 16px; }
+.teacher-video-frame { box-shadow: 0 22px 55px rgba(15,23,42,.18); }
+.upgrade-card { box-shadow: 0 18px 44px rgba(79,70,229,.1); }
+
+@media (max-width: 720px) {
+  .topbar { padding: 16px; }
+  .pricing-card.featured::before { display: inline-flex; margin-bottom: 10px; position: static; }
+}
