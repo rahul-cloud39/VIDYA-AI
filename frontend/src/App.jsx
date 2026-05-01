@@ -1050,7 +1050,7 @@ function TestSeries({ exam, apiReady, plan }) {
   const [error, setError] = useState("");
   const [timeLeft, setTimeLeft] = useState(pattern.duration * 60);
   const [freeMocksUsed, setFreeMocksUsed] = useState(() => Number(localStorage.getItem("vidya_free_mocks_used") || 0));
-  const isPro = plan === "pro";
+  const isPro = plan === "pro" || plan === "avatar_pro";
 
   useEffect(() => {
     setQuestions([]);
@@ -1421,16 +1421,19 @@ function Pricing({ user, onUpgraded, apiReady }) {
           <div className="pricing-name">VidyaAI Pro</div>
           <div className="amount">₹199/mo</div>
           <p>Unlimited doubts, full mock tests, study planning, performance analytics, and adaptive tutoring.</p>
-          <PlanComparison currentPlan={user?.plan === "pro" ? "pro" : "free"} />
-          <button onClick={upgrade} disabled={loading || user?.plan === "pro" || !apiReady}>
-            {user?.plan === "pro" ? "Already Pro" : loading ? "Opening Checkout..." : "Upgrade Pro"}
+          <PlanComparison currentPlan={user?.plan === "pro" || user?.plan === "avatar_pro" ? "pro" : "free"} />
+          <button onClick={upgrade} disabled={loading || user?.plan === "pro" || user?.plan === "avatar_pro" || !apiReady}>
+            {user?.plan === "pro" || user?.plan === "avatar_pro" ? "Already Included" : loading ? "Opening Checkout..." : "Upgrade Pro"}
           </button>
         </div>
         <div className="pricing-card featured">
           <div className="pricing-name">AI Avatar Pro</div>
           <div className="amount">₹499/mo</div>
-          <p>Generate premium talking AI teacher videos with avatar, voice, lip-sync, and ready-to-play lesson output.</p>
+          <p>Everything in VidyaAI Pro plus premium talking AI teacher videos with avatar, voice, lip-sync, and ready-to-play lesson output.</p>
           <ul className="avatar-plan-list">
+            <li>All VidyaAI Pro features included</li>
+            <li>Unlimited full mock tests</li>
+            <li>Study planner and analytics</li>
             <li>Talking teacher avatar videos</li>
             <li>Voice + lip-sync rendering</li>
             <li>Script to video workflow</li>
@@ -1490,7 +1493,7 @@ function App() {
     const quota = profile?.quota;
     return {
       exam: user?.exam || "JEE",
-      plan: user?.plan === "pro" ? "Pro" : "Free",
+      plan: user?.plan === "avatar_pro" ? "Avatar Pro" : user?.plan === "pro" ? "Pro" : "Free",
       doubts: quota?.doubts_limit == null ? "Unlimited" : `${quota?.doubts_remaining ?? 0} left`,
     };
   }, [profile]);
