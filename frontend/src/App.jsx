@@ -1259,19 +1259,29 @@ function App() {
       </nav>
       <section className="hero">
         <div>
-          <div className="hero-title">Every student in India has an AI teacher</div>
+          <div className="hero-title">India ka smartest AI tutor, always on.</div>
           <div className="hero-copy">
-            Not a chatbot. A learning brain that explains like a human tutor, adapts like a mentor, and pushes execution like a coach.
+            VidyaAI turns doubts into teacher-style video lessons, chapterwise PYQ tests, smart study plans, and voice-first learning for JEE, NEET and UPSC aspirants.
+          </div>
+          <div className="hero-proof">
+            <span>AI Teacher Videos</span>
+            <span>15-Year PYQ Practice</span>
+            <span>Hinglish Doubt Solving</span>
           </div>
         </div>
         <div className="hero-controls">
           <ExamSelector exam={exam} onChange={changeExam} />
+          <div className="mission-card">
+            <div className="mission-eyebrow">Current focus</div>
+            <div className="mission-title">{exam} success mode</div>
+            <p>Personalized explanations, adaptive MCQs, PYQ tests and performance insights in one learning cockpit.</p>
+          </div>
         </div>
       </section>
       <section className="vision-band">
-        <div className="vision-badge">Synthesia-like teaching, built for Indian exam prep</div>
+        <div className="vision-badge">Built for serious Indian exam prep</div>
         <div className="vision-copy">
-          Student asks a question. VidyaAI turns it into a video-style lesson with voice, steps, and a teacher personality that fits the moment.
+          Ask a doubt, upload an image, generate a teacher video, take chapterwise tests, track weak areas, and revise with a plan that adapts as you improve.
         </div>
       </section>
       <section className="stats">
