@@ -1242,7 +1242,7 @@ function App() {
   }
 
   return (
-    <main>
+    <main className="dashboard-app">
       {missingSupabase && (
         <div className="setup-banner">
           Frontend env vars are missing. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in frontend deployment env, then redeploy.
@@ -1253,9 +1253,36 @@ function App() {
           Frontend API URL is missing. Set `VITE_API_URL` to your backend URL in frontend deployment env, then redeploy.
         </div>
       )}
-      <nav>
+      <aside className="sidebar">
         <div className="brand"><Flame size={22} /> VidyaAI</div>
-        <AuthPanel session={session} canAuth={!missingSupabase} />
+        <div className="sidebar-menu">
+          <a className="active"><BarChart3 size={18} /> Dashboard</a>
+          <a><Brain size={18} /> Ask Doubt</a>
+          <a><Video size={18} /> AI Teacher</a>
+          <a><Target size={18} /> Study Planner</a>
+          <a><LineChart size={18} /> My Progress</a>
+          <a><Trophy size={18} /> Test Series</a>
+          <a><Sparkles size={18} /> Achievements</a>
+        </div>
+        <div className="upgrade-card">
+          <div>👑 Upgrade to Pro</div>
+          <p>Unlock unlimited doubts, PYQ tests and AI videos.</p>
+          <button>Upgrade Now →</button>
+        </div>
+      </aside>
+      <div className="dashboard-main">
+      <nav className="topbar">
+        <div>
+          <div className="welcome-title">👋 Welcome back, Aman!</div>
+          <div className="welcome-subtitle">Let’s continue your learning journey today.</div>
+        </div>
+        <div className="topbar-actions">
+          <button className="ghost">👑 Upgrade to Pro</button>
+          <div className="profile-chip">
+            <span>Aman Verma</span>
+            <small>{exam} Aspirant</small>
+          </div>
+        </div>
       </nav>
       <section className="hero">
         <div>
@@ -1331,6 +1358,7 @@ function App() {
         <Performance refreshKey={refreshKey} />
         <StudyPlanner exam={exam} apiReady={!missingApi} />
         <Pricing user={profile?.user} apiReady={!missingApi} onUpgraded={loadProfile} />
+      </div>
       </div>
     </main>
   );

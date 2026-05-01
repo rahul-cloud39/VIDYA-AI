@@ -214,3 +214,392 @@ button:disabled { cursor: not-allowed; opacity: .48; }
 @keyframes write-line { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes video-progress { 0% { width: 8%; } 100% { width: 88%; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.dashboard-app {
+  background: #f7f8ff;
+  color: #111827;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+  padding: 0;
+}
+
+.dashboard-app::before,
+.dashboard-app::after {
+  display: none;
+}
+
+.sidebar {
+  background: #ffffff;
+  border-right: 1px solid #e7e9f5;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  height: 100vh;
+  left: 0;
+  padding: 24px 18px;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar .brand {
+  color: #111827;
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.sidebar .brand svg {
+  background: linear-gradient(135deg, #5571ff, #7c3aed);
+  color: #ffffff;
+}
+
+.sidebar-menu {
+  display: grid;
+  gap: 8px;
+}
+
+.sidebar-menu a {
+  align-items: center;
+  border-radius: 12px;
+  color: #56617a;
+  display: flex;
+  font-size: 14px;
+  font-weight: 750;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.sidebar-menu a.active,
+.sidebar-menu a:hover {
+  background: #eef0ff;
+  color: #4f46e5;
+}
+
+.upgrade-card {
+  background: linear-gradient(180deg, #f2f4ff, #ffffff);
+  border: 1px solid #e4e7ff;
+  border-radius: 18px;
+  margin-top: auto;
+  padding: 16px;
+}
+
+.upgrade-card div {
+  color: #4338ca;
+  font-weight: 900;
+}
+
+.upgrade-card p {
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.upgrade-card button {
+  width: 100%;
+}
+
+.dashboard-main {
+  min-width: 0;
+  padding: 24px 28px 40px;
+}
+
+.topbar {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+  max-width: none;
+  padding: 0 0 24px;
+  position: static;
+}
+
+.welcome-title {
+  color: #111827;
+  font-size: 26px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.welcome-subtitle {
+  color: #667085;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.topbar-actions {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+}
+
+.profile-chip {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e7e9f5;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.05);
+  display: grid;
+  min-width: 150px;
+  padding: 10px 14px;
+}
+
+.profile-chip span {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.profile-chip small {
+  color: #667085;
+  font-weight: 700;
+}
+
+.dashboard-app .hero,
+.dashboard-app .stats,
+.dashboard-app .differentiators,
+.dashboard-app .layout,
+.dashboard-app .vision-band {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.dashboard-app .hero {
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, .7fr);
+  padding-top: 0;
+}
+
+.dashboard-app .hero::before {
+  display: none;
+}
+
+.dashboard-app .hero > div:first-child,
+.dashboard-app .hero-controls,
+.dashboard-app .vision-band,
+.dashboard-app .stat-card,
+.dashboard-app .panel,
+.dashboard-app .differentiator-card,
+.dashboard-app .mcq-card,
+.dashboard-app .lesson-card,
+.dashboard-app .lesson-step,
+.dashboard-app .plan-column {
+  backdrop-filter: none;
+  background: #ffffff;
+  border: 1px solid #e7e9f5;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-app .hero > div:first-child {
+  border-radius: 20px;
+  min-height: 260px;
+  padding: 28px;
+}
+
+.dashboard-app .hero > div:first-child::before {
+  display: none;
+}
+
+.dashboard-app .hero > div:first-child::after {
+  background: linear-gradient(135deg, #5b6cff, #7c3aed);
+  border-radius: 26px;
+  bottom: -70px;
+  height: 180px;
+  opacity: 0.12;
+  right: -48px;
+  width: 260px;
+}
+
+.dashboard-app .hero-title {
+  color: #111827;
+  font-size: clamp(34px, 4.4vw, 58px);
+  letter-spacing: -0.065em;
+  line-height: 0.98;
+}
+
+.dashboard-app .hero-copy {
+  color: #667085;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 720px;
+}
+
+.dashboard-app .hero-copy::after {
+  background: linear-gradient(90deg, #5b6cff, #22c55e, #f59e0b);
+}
+
+.dashboard-app .hero-proof span,
+.dashboard-app .lesson-pill,
+.dashboard-app .mcq-meta-row span,
+.dashboard-app .plan-badge,
+.dashboard-app .mcq-difficulty {
+  background: #f4f6ff;
+  border-color: #e2e7ff;
+  color: #4f46e5;
+}
+
+.dashboard-app .hero-controls {
+  border-radius: 20px;
+  padding: 22px;
+}
+
+.dashboard-app .hero-controls::before,
+.dashboard-app .mission-eyebrow,
+.dashboard-app .vision-badge,
+.dashboard-app .lesson-section-title,
+.dashboard-app .mcq-kicker {
+  color: #4f46e5;
+}
+
+.dashboard-app .hero-controls > .row {
+  background: #f5f7fb;
+  border-color: #e7e9f5;
+}
+
+.dashboard-app .mission-card {
+  background: #f8faff;
+  border-color: #e7e9f5;
+}
+
+.dashboard-app .mission-title,
+.dashboard-app .panel-title,
+.dashboard-app .lesson-title,
+.dashboard-app .stat-value,
+.dashboard-app .teacher-placeholder-title,
+.dashboard-app .mcq-card-head strong {
+  color: #111827;
+}
+
+.dashboard-app .mission-card p,
+.dashboard-app .vision-copy,
+.dashboard-app .differentiator-card p,
+.dashboard-app .lesson-card p,
+.dashboard-app .lesson-step p,
+.dashboard-app .teacher-help,
+.dashboard-app .upload-meta,
+.dashboard-app .lesson-summary,
+.dashboard-app .stat-muted,
+.dashboard-app .plan-column li,
+.dashboard-app .mcq-result span {
+  color: #667085;
+}
+
+.dashboard-app .vision-band {
+  border-radius: 20px;
+  margin-top: 18px;
+}
+
+.dashboard-app .stats {
+  gap: 14px;
+  padding-top: 18px;
+}
+
+.dashboard-app .stat-card {
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.dashboard-app .stat-head {
+  color: #667085;
+}
+
+.dashboard-app .layout,
+.dashboard-app .differentiators {
+  gap: 18px;
+}
+
+.dashboard-app .panel,
+.dashboard-app .differentiator-card {
+  border-radius: 20px;
+}
+
+.dashboard-app input,
+.dashboard-app textarea,
+.dashboard-app select {
+  background: #ffffff;
+  border-color: #e1e5f2;
+  color: #111827;
+}
+
+.dashboard-app input:focus,
+.dashboard-app textarea:focus,
+.dashboard-app select:focus {
+  background: #ffffff;
+  border-color: #5b6cff;
+  box-shadow: 0 0 0 4px rgba(91, 108, 255, 0.12);
+}
+
+.dashboard-app button {
+  background: linear-gradient(135deg, #5b6cff, #7c3aed);
+  box-shadow: 0 12px 28px rgba(91, 108, 255, 0.22);
+  color: #ffffff;
+}
+
+.dashboard-app .ghost,
+.dashboard-app .chip {
+  background: #ffffff;
+  border-color: #e1e5f2;
+  color: #4f46e5;
+}
+
+.dashboard-app .answer,
+.dashboard-app .question,
+.dashboard-app .mcq-option,
+.dashboard-app .option-btn,
+.dashboard-app .option,
+.dashboard-app .plan-item {
+  background: #f8faff;
+  border-color: #e7e9f5;
+  color: #111827;
+}
+
+.dashboard-app .teacher-placeholder {
+  background: #f8faff;
+  border-color: #e7e9f5;
+}
+
+.dashboard-app .teacher-video-frame {
+  border-radius: 18px;
+}
+
+.dashboard-app .video-stage {
+  background: linear-gradient(135deg, #101828, #182230);
+}
+
+.dashboard-app .error-box {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-app {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    height: auto;
+    position: static;
+  }
+  .sidebar-menu {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-main {
+    padding: 18px 14px 32px;
+  }
+  .topbar,
+  .topbar-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .sidebar-menu,
+  .dashboard-app .hero,
+  .dashboard-app .stats,
+  .dashboard-app .layout,
+  .dashboard-app .differentiators {
+    grid-template-columns: 1fr;
+  }
+}
