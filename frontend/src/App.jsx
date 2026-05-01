@@ -1003,6 +1003,161 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
   );
 }
 
+function TestSeries({ exam, apiReady }) {
+  const [form, setForm] = useState({ exam, subject: "Physics", topic: "Mixed Concepts", difficulty: "medium", count: 5 });
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, exam }));
+  }, [exam]);
+
+  function fallbackQuestion(index) {
+    return {
+      question: `${form.subject}: What is the best exam strategy for ${form.topic} question ${index + 1}?`,
+      options: [
+        "Read the question carefully, identify the concept, and solve step by step.",
+        "Guess quickly without checking units or conditions.",
+        "Skip the question even if it is easy.",
+        "Memorize options instead of understanding the concept.",
+      ],
+      answer_index: 0,
+      explanation: "A strong test approach starts with concept identification, careful reading, and stepwise solving.",
+      topic: form.topic,
+      difficulty: form.difficulty,
+    };
+  }
+
+  async function startTest() {
+    if (!apiReady) {
+      setError("Backend API is not configured.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    setSubmitted(false);
+    setAnswers({});
+    try {
+      const total = Math.max(1, Math.min(Number(form.count) || 5, 10));
+      const generated = [];
+      for (let index = 0; index < total; index += 1) {
+        try {
+          const question = await apiJson("/api/generate-question", {
+            method: "POST",
+            body: JSON.stringify({
+              exam: form.exam,
+              subject: form.subject,
+              topic: `${form.topic} test question ${index + 1}`,
+              difficulty: form.difficulty,
+            }),
+          });
+          generated.push(question);
+        } catch {
+          generated.push(fallbackQuestion(index));
+        }
+      }
+      setQuestions(generated);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const score = questions.reduce((total, question, index) => total + (answers[index] === question.answer_index ? 1 : 0), 0);
+
+  return (
+    <section className="panel test-series-panel">
+      <div className="panel-title mcq-title">
+        <span><Trophy size={20} /> Test Series</span>
+        <PlanBadge type="free" />
+      </div>
+      <div className="mcq-meta-row">
+        <span>{exam}</span>
+        <span>{form.difficulty}</span>
+        <span>{questions.length ? `${questions.length} questions` : "Mock practice"}</span>
+      </div>
+      <div className="mcq-form">
+        <label>
+          Subject
+          <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} />
+        </label>
+        <label>
+          Topic / Chapter
+          <input value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })} />
+        </label>
+        <label>
+          Difficulty
+          <select value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
+            <option value="easy">easy</option>
+            <option value="medium">medium</option>
+            <option value="hard">hard</option>
+          </select>
+        </label>
+        <label>
+          Questions
+          <select value={form.count} onChange={(e) => setForm({ ...form, count: Number(e.target.value) })}>
+            <option value={3}>3</option>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+          </select>
+        </label>
+      </div>
+      <div className="mcq-actions">
+        <button onClick={startTest} disabled={!apiReady || loading}>
+          {loading ? <RotateCcw className="spin-icon" size={16} /> : <Trophy size={16} />}
+          {loading ? "Creating Test..." : "Start Test"}
+        </button>
+        {questions.length > 0 && (
+          <button className="ghost" onClick={() => setSubmitted(true)} disabled={submitted}>
+            Submit Test
+          </button>
+        )}
+      </div>
+      {error && <div className="error-box">{error}</div>}
+      {submitted && (
+        <div className={`test-score ${score >= Math.ceil(questions.length * 0.6) ? "good" : "needs-work"}`}>
+          <strong>Score: {score}/{questions.length}</strong>
+          <span>{score >= Math.ceil(questions.length * 0.6) ? "Great work. Keep practicing tougher sets." : "Revise this topic and retake the test."}</span>
+        </div>
+      )}
+      <div className="test-question-list">
+        {questions.map((question, index) => (
+          <div className="mcq-card" key={`${question.question}-${index}`}>
+            <div className="mcq-card-head">
+              <div>
+                <span className="mcq-kicker">Question {index + 1}</span>
+                <strong>{question.question}</strong>
+              </div>
+              <span className="mcq-difficulty">{question.difficulty || form.difficulty}</span>
+            </div>
+            <div className="mcq-options">
+              {(question.options || []).map((option, optionIndex) => {
+                const isSelected = answers[index] === optionIndex;
+                const isCorrect = submitted && optionIndex === question.answer_index;
+                const isWrong = submitted && isSelected && optionIndex !== question.answer_index;
+                return (
+                  <button
+                    type="button"
+                    className={`mcq-option ${isSelected ? "selected-option" : ""} ${isCorrect ? "correct-option" : ""} ${isWrong ? "wrong-option" : ""}`}
+                    onClick={() => !submitted && setAnswers({ ...answers, [index]: optionIndex })}
+                    key={`${option}-${optionIndex}`}
+                  >
+                    <span>{String.fromCharCode(65 + optionIndex)}</span>
+                    <p>{option}</p>
+                  </button>
+                );
+              })}
+            </div>
+            {submitted && <div className="mcq-result correct"><p>{question.explanation}</p></div>}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Performance({ refreshKey }) {
   const [data, setData] = useState(null);
 
@@ -1269,7 +1424,7 @@ function App() {
           <button type="button" onClick={() => scrollToSection(".teacher-panel")}><Video size={18} /> AI Teacher</button>
           <button type="button" onClick={() => scrollToSection(".layout")}><Target size={18} /> Study Planner</button>
           <button type="button" onClick={() => scrollToSection(".layout")}><LineChart size={18} /> My Progress</button>
-          <button type="button" onClick={() => scrollToSection(".mcq-panel")}><Trophy size={18} /> Test Series</button>
+          <button type="button" onClick={() => scrollToSection(".test-series-panel")}><Trophy size={18} /> Test Series</button>
           <button type="button" onClick={() => scrollToSection(".differentiators")}><Sparkles size={18} /> Achievements</button>
         </div>
         <div className="upgrade-card">
@@ -1369,6 +1524,7 @@ function App() {
         <VoiceAssistant />
         <DoubtSolver exam={exam} apiReady={!missingApi} onExamChange={changeExam} />
         <MCQGenerator exam={exam} apiReady={!missingApi} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
+        <TestSeries exam={exam} apiReady={!missingApi} />
         <PYQTest exam={exam} apiReady={!missingApi} />
         <Performance refreshKey={refreshKey} />
         <StudyPlanner exam={exam} apiReady={!missingApi} />

@@ -606,6 +606,46 @@ button:disabled { cursor: not-allowed; opacity: .48; }
   color: #be123c;
 }
 
+.test-series-panel {
+  grid-column: 1 / -1;
+}
+
+.test-question-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.test-score {
+  align-items: center;
+  border-radius: 16px;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 14px 16px;
+}
+
+.test-score strong {
+  font-size: 18px;
+}
+
+.test-score span {
+  color: #667085;
+}
+
+.test-score.good {
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  color: #047857;
+}
+
+.test-score.needs-work {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #c2410c;
+}
+
 @media (max-width: 1100px) {
   .dashboard-app {
     grid-template-columns: 1fr;
