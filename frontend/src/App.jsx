@@ -1003,7 +1003,7 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
   );
 }
 
-function TestSeries({ exam, apiReady }) {
+function TestSeries({ exam, apiReady, plan }) {
   const mockPatterns = {
     JEE: {
       title: "JEE Main Full Mock",
@@ -1011,9 +1011,9 @@ function TestSeries({ exam, apiReady }) {
       positive: 4,
       negative: 1,
       sections: [
-        { name: "Physics", questions: 10 },
-        { name: "Chemistry", questions: 10 },
-        { name: "Mathematics", questions: 10 },
+        { name: "Physics", questions: 30 },
+        { name: "Chemistry", questions: 30 },
+        { name: "Mathematics", questions: 30 },
       ],
     },
     NEET: {
@@ -1049,6 +1049,8 @@ function TestSeries({ exam, apiReady }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [timeLeft, setTimeLeft] = useState(pattern.duration * 60);
+  const [freeMocksUsed, setFreeMocksUsed] = useState(() => Number(localStorage.getItem("vidya_free_mocks_used") || 0));
+  const isPro = plan === "pro";
 
   useEffect(() => {
     setQuestions([]);
@@ -1091,6 +1093,11 @@ function TestSeries({ exam, apiReady }) {
       setError("Backend API is not configured.");
       return;
     }
+    if (!isPro && freeMocksUsed >= 3) {
+      setError("You have used 3 free full mock tests. Upgrade to Pro to unlock unlimited JEE/NEET/UPSC mocks.");
+      document.querySelector(".price")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     setLoading(true);
     setError("");
     setSubmitted(false);
@@ -1117,6 +1124,11 @@ function TestSeries({ exam, apiReady }) {
         }
       }
       setQuestions(generated);
+      if (!isPro) {
+        const nextCount = freeMocksUsed + 1;
+        setFreeMocksUsed(nextCount);
+        localStorage.setItem("vidya_free_mocks_used", String(nextCount));
+      }
     } finally {
       setLoading(false);
     }
@@ -1149,13 +1161,14 @@ function TestSeries({ exam, apiReady }) {
     <section className="panel test-series-panel">
       <div className="panel-title mcq-title">
         <span><Trophy size={20} /> Complete Mock Test</span>
-        <PlanBadge type="free" />
+        <PlanBadge type={isPro ? "pro" : "free"} />
       </div>
       <div className="mcq-meta-row">
         <span>{pattern.title}</span>
         <span>{pattern.duration} min</span>
         <span>+{pattern.positive} / -{pattern.negative}</span>
         <span>{questions.length ? `${questions.length} questions` : `${pattern.sections.reduce((sum, section) => sum + section.questions, 0)} questions`}</span>
+        <span>{isPro ? "Unlimited Pro mocks" : `${Math.max(0, 3 - freeMocksUsed)} free mocks left`}</span>
       </div>
       <div className="mock-instructions">
         <strong>Real exam pattern</strong>
@@ -1605,7 +1618,7 @@ function App() {
         <VoiceAssistant />
         <DoubtSolver exam={exam} apiReady={!missingApi} onExamChange={changeExam} />
         <MCQGenerator exam={exam} apiReady={!missingApi} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
-        <TestSeries exam={exam} apiReady={!missingApi} />
+        <TestSeries exam={exam} apiReady={!missingApi} plan={profile?.user?.plan} />
         <PYQTest exam={exam} apiReady={!missingApi} />
         <Performance refreshKey={refreshKey} />
         <StudyPlanner exam={exam} apiReady={!missingApi} />
