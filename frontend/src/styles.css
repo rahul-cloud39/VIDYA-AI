@@ -868,7 +868,49 @@ button:disabled { cursor: not-allowed; opacity: .48; }
 .teacher-video-frame { box-shadow: 0 22px 55px rgba(15,23,42,.18); }
 .upgrade-card { box-shadow: 0 18px 44px rgba(79,70,229,.1); }
 
+.referral-panel {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.98), rgba(248,250,255,.94)),
+    radial-gradient(circle at 96% 10%, rgba(245,158,11,.12), transparent 30%);
+}
+
+.referral-copy {
+  color: #667085;
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+
+.referral-code-box {
+  align-items: center;
+  background: #fff8e8;
+  border: 1px solid #f6d58f;
+  border-radius: 18px;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 16px;
+}
+
+.referral-code-box span {
+  color: #92400e;
+  display: block;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.referral-code-box strong {
+  color: #111827;
+  display: block;
+  font-size: 24px;
+  letter-spacing: .04em;
+  margin-top: 4px;
+}
+
 @media (max-width: 720px) {
   .topbar { padding: 16px; }
   .pricing-card.featured::before { display: inline-flex; margin-bottom: 10px; position: static; }
+  .referral-code-box { align-items: stretch; flex-direction: column; }
 }

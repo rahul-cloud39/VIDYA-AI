@@ -1448,6 +1448,75 @@ function Pricing({ user, onUpgraded, apiReady }) {
   );
 }
 
+function ReferralProgram({ profile, apiReady, onRewarded }) {
+  const referral = profile?.referral;
+  const [claimCode, setClaimCode] = useState("");
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
+  const referralLink = referral?.code ? `${window.location.origin}?ref=${referral.code}` : "";
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) setClaimCode(ref.toUpperCase());
+  }, []);
+
+  async function copyReferral() {
+    if (!referralLink) return;
+    await navigator.clipboard.writeText(referralLink);
+    setStatus("Referral link copied. Share it with friends.");
+  }
+
+  async function claimReferral() {
+    if (!apiReady) {
+      setStatus("Backend API is not configured.");
+      return;
+    }
+    if (!claimCode.trim()) {
+      setStatus("Enter a referral code first.");
+      return;
+    }
+    setLoading(true);
+    setStatus("");
+    try {
+      const result = await apiJson("/api/referrals/claim", {
+        method: "POST",
+        body: JSON.stringify({ code: claimCode.trim() }),
+      });
+      setStatus(result.message || "Referral applied. 1 month Pro unlocked.");
+      onRewarded?.();
+    } catch (err) {
+      setStatus(err.message || "Unable to apply referral code.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section className="panel referral-panel">
+      <div className="panel-title mcq-title">
+        <span><Sparkles size={20} /> Referral Rewards</span>
+        <span className="plan-badge pro">1 Month Pro Free</span>
+      </div>
+      <p className="referral-copy">Refer a friend to VidyaAI. When they use your code, both of you get 1 month Pro subscription free.</p>
+      <div className="referral-code-box">
+        <div>
+          <span>Your referral code</span>
+          <strong>{referral?.code || "Login required"}</strong>
+        </div>
+        <button type="button" onClick={copyReferral} disabled={!referral?.code}>Copy Link</button>
+      </div>
+      <div className="grid-form">
+        <input value={claimCode} onChange={(event) => setClaimCode(event.target.value.toUpperCase())} placeholder="Enter friend's referral code" />
+        <button type="button" onClick={claimReferral} disabled={loading || !apiReady}>
+          {loading ? "Applying..." : "Claim 1 Month Pro"}
+        </button>
+      </div>
+      {status && <div className="answer">{status}</div>}
+    </section>
+  );
+}
+
 function App() {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -1641,6 +1710,7 @@ function App() {
         <DoubtSolver exam={exam} apiReady={!missingApi} onExamChange={changeExam} />
         <MCQGenerator exam={exam} apiReady={!missingApi} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
         <TestSeries exam={exam} apiReady={!missingApi} plan={profile?.user?.plan} />
+        <ReferralProgram profile={profile} apiReady={!missingApi} onRewarded={loadProfile} />
         <PYQTest exam={exam} apiReady={!missingApi} />
         <Performance refreshKey={refreshKey} />
         <StudyPlanner exam={exam} apiReady={!missingApi} />

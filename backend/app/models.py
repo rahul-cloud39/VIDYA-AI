@@ -9,7 +9,7 @@ Exam = Literal["JEE", "NEET", "UPSC"]
 class User(BaseModel):
     id: str
     email: str
-    plan: Literal["free", "pro"] = "free"
+    plan: Literal["free", "pro", "avatar_pro"] = "free"
     exam: Exam = "JEE"
 
 
@@ -65,3 +65,7 @@ class EvalRequest(BaseModel):
 
 class UserProfileUpdate(BaseModel):
     exam: Exam
+
+
+class ReferralClaimRequest(BaseModel):
+    code: str = Field(min_length=6, max_length=40)
