@@ -4,7 +4,7 @@ import { apiJson } from "./api";
 const POLL_INTERVAL_MS = 4000;
 const MAX_POLL_ATTEMPTS = 60;
 
-export default function HeyGenAvatar({ apiReady }) {
+export default function HeyGenAvatar({ apiReady, plan }) {
   const [text, setText] = useState(
     "Hello! I am your VidyaAI teacher. Ask me any concept and I will explain step by step."
   );
@@ -15,6 +15,7 @@ export default function HeyGenAvatar({ apiReady }) {
   const [error, setError] = useState("");
   const pollTimerRef = useRef(null);
   const pollCountRef = useRef(0);
+  const isAvatarPro = plan === "pro" || plan === "avatar_pro";
 
   useEffect(() => {
     return () => {
@@ -66,6 +67,11 @@ export default function HeyGenAvatar({ apiReady }) {
   }
 
   async function generate() {
+    if (!isAvatarPro) {
+      setError("AI Avatar Video is included in the ₹499 Avatar Pro plan. Upgrade to generate premium teacher videos.");
+      document.querySelector(".price")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     if (!apiReady) {
       setError("Set VITE_API_URL to your backend URL in frontend deployment env, then redeploy.");
       return;
@@ -108,7 +114,14 @@ export default function HeyGenAvatar({ apiReady }) {
     <section className="panel">
       <div className="panel-title">
         🎬 AI Avatar (HeyGen)
+        <span className="plan-badge pro">₹499 Avatar Pro</span>
       </div>
+
+      {!isAvatarPro && (
+        <div className="pro-note">
+          AI Avatar Video is a premium feature. Upgrade to the ₹499 Avatar Pro plan to generate talking teacher videos with voice and lip-sync.
+        </div>
+      )}
 
       <textarea
         value={text}
@@ -136,7 +149,7 @@ export default function HeyGenAvatar({ apiReady }) {
       </div>
 
       <button onClick={generate} disabled={isWorking || !apiReady || text.trim().length < 5}>
-        {isWorking ? "Generating video..." : "Generate AI Avatar Video"}
+        {isWorking ? "Generating video..." : isAvatarPro ? "Generate AI Avatar Video" : "Unlock Avatar Pro ₹499"}
       </button>
 
       {status !== "idle" && !videoUrl && !error && (

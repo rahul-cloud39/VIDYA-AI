@@ -1414,14 +1414,33 @@ function Pricing({ user, onUpgraded, apiReady }) {
   return (
     <section className="panel price">
       <div className="panel-title">
-        <CreditCard size={20} /> Pro Plan
+        <CreditCard size={20} /> Premium Plans
       </div>
-      <div className="amount">Rs 199/mo</div>
-      <p>Unlimited doubts, AI teacher video explanations, mock tests, execution-focused study planning, and adaptive tutoring.</p>
-      <PlanComparison currentPlan={user?.plan === "pro" ? "pro" : "free"} />
-      <button onClick={upgrade} disabled={loading || user?.plan === "pro" || !apiReady}>
-        {user?.plan === "pro" ? "Already Pro" : loading ? "Opening Checkout..." : "Upgrade"}
-      </button>
+      <div className="pricing-grid">
+        <div className="pricing-card">
+          <div className="pricing-name">VidyaAI Pro</div>
+          <div className="amount">₹199/mo</div>
+          <p>Unlimited doubts, full mock tests, study planning, performance analytics, and adaptive tutoring.</p>
+          <PlanComparison currentPlan={user?.plan === "pro" ? "pro" : "free"} />
+          <button onClick={upgrade} disabled={loading || user?.plan === "pro" || !apiReady}>
+            {user?.plan === "pro" ? "Already Pro" : loading ? "Opening Checkout..." : "Upgrade Pro"}
+          </button>
+        </div>
+        <div className="pricing-card featured">
+          <div className="pricing-name">AI Avatar Pro</div>
+          <div className="amount">₹499/mo</div>
+          <p>Generate premium talking AI teacher videos with avatar, voice, lip-sync, and ready-to-play lesson output.</p>
+          <ul className="avatar-plan-list">
+            <li>Talking teacher avatar videos</li>
+            <li>Voice + lip-sync rendering</li>
+            <li>Script to video workflow</li>
+            <li>Best for premium visual lessons</li>
+          </ul>
+          <button onClick={upgrade} disabled={loading || user?.plan === "pro" || user?.plan === "avatar_pro" || !apiReady}>
+            {user?.plan === "pro" || user?.plan === "avatar_pro" ? "Avatar Pro Active" : loading ? "Opening Checkout..." : "Upgrade Avatar Pro ₹499"}
+          </button>
+        </div>
+      </div>
     </section>
   );
 }
@@ -1614,7 +1633,7 @@ function App() {
       </section>
       <div className="layout">
         <TeacherStudio exam={exam} apiReady={!missingApi} />
-        <HeyGenAvatar apiReady={!missingApi} />
+        <HeyGenAvatar apiReady={!missingApi} plan={profile?.user?.plan} />
         <VoiceAssistant />
         <DoubtSolver exam={exam} apiReady={!missingApi} onExamChange={changeExam} />
         <MCQGenerator exam={exam} apiReady={!missingApi} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
