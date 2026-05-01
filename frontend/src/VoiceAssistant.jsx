@@ -28,14 +28,14 @@ export default function VoiceAssistant() {
   };
 
   return (
-    <div>
-      <h2>🎤 Voice Assistant</h2>
+    <section className="panel">
+      <div className="panel-title">🎤 Voice Assistant</div>
 
-      <button onClick={startListening}>
+      <button onClick={startListening} disabled={listening}>
         {listening ? "Listening..." : "Start Talking"}
       </button>
 
-      <p>{text}</p>
-    </div>
+      {text && <div className="answer">{text}</div>}
+    </section>
   );
 }

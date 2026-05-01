@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { API_CONFIGURED, apiFetch, apiJson, authHeaders, loadRazorpayScript, supabase } from "./api";
+import VoiceAssistant from "./VoiceAssistant";
+import HeyGenAvatar from "./HeyGenAvatar";
 import "./styles.css";
 
 function AuthPanel({ session, canAuth }) {
@@ -1310,6 +1312,8 @@ function App() {
       </section>
       <div className="layout">
         <TeacherStudio exam={exam} apiReady={!missingApi} />
+        <HeyGenAvatar apiReady={!missingApi} />
+        <VoiceAssistant />
         <DoubtSolver exam={exam} apiReady={!missingApi} onExamChange={changeExam} />
         <MCQGenerator exam={exam} apiReady={!missingApi} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
         <Performance refreshKey={refreshKey} />

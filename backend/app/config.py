@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     razorpay_key_secret: str = Field("", validation_alias="RAZORPAY_KEY_SECRET")
     razorpay_webhook_secret: str = Field("", validation_alias="RAZORPAY_WEBHOOK_SECRET")
     frontend_url: str = Field("http://localhost:5173", validation_alias="FRONTEND_URL")
+    heygen_api_key: str = Field("", validation_alias="HEYGEN_API_KEY")
+    heygen_avatar_id: str = Field("", validation_alias="HEYGEN_AVATAR_ID")
+    heygen_voice_id: str = Field("", validation_alias="HEYGEN_VOICE_ID")
 
     @field_validator(
         "gemini_api_key",
@@ -26,6 +29,9 @@ class Settings(BaseSettings):
         "razorpay_key_secret",
         "razorpay_webhook_secret",
         "frontend_url",
+        "heygen_api_key",
+        "heygen_avatar_id",
+        "heygen_voice_id",
         mode="before",
     )
     @classmethod
