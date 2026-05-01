@@ -1,0 +1,122 @@
+[
+  {
+    "id": "jee-kin-2012-e1",
+    "exam": "JEE",
+    "year": 2012,
+    "chapter": "Kinematics",
+    "difficulty": "easy",
+    "question": "A body starts from rest and moves with a uniform acceleration of 2 m/s². The distance covered in 5 s is:",
+    "options": ["10 m", "20 m", "25 m", "50 m"],
+    "answer_index": 2,
+    "explanation": "s = ut + 1/2 a t² = 0 + 1/2 * 2 * 25 = 25 m.",
+    "source": "manual"
+  },
+  {
+    "id": "jee-kin-2018-m1",
+    "exam": "JEE",
+    "year": 2018,
+    "chapter": "Kinematics",
+    "difficulty": "medium",
+    "question": "A ball is thrown vertically upward with 20 m/s. Taking g = 10 m/s², the time to reach the highest point is:",
+    "options": ["1 s", "2 s", "3 s", "4 s"],
+    "answer_index": 1,
+    "explanation": "t = u/g = 20/10 = 2 s.",
+    "source": "manual"
+  },
+  {
+    "id": "jee-kin-2021-h1",
+    "exam": "JEE",
+    "year": 2021,
+    "chapter": "Kinematics",
+    "difficulty": "hard",
+    "question": "Two cars A and B start from the same point. A moves with constant 20 m/s. B starts from rest with 2 m/s² acceleration. When B catches A, the distance covered is:",
+    "options": ["100 m", "200 m", "400 m", "800 m"],
+    "answer_index": 2,
+    "explanation": "20 t = 1/2 * 2 * t² => t = 20 s. Distance = 20 * 20 = 400 m.",
+    "source": "manual"
+  },
+  {
+    "id": "jee-nlm-2015-e1",
+    "exam": "JEE",
+    "year": 2015,
+    "chapter": "Laws of Motion",
+    "difficulty": "easy",
+    "question": "A force of 10 N acts on a 2 kg body. The acceleration produced is:",
+    "options": ["2 m/s²", "5 m/s²", "10 m/s²", "20 m/s²"],
+    "answer_index": 1,
+    "explanation": "a = F/m = 10/2 = 5 m/s².",
+    "source": "manual"
+  },
+  {
+    "id": "jee-nlm-2019-m1",
+    "exam": "JEE",
+    "year": 2019,
+    "chapter": "Laws of Motion",
+    "difficulty": "medium",
+    "question": "A 5 kg block is on a rough surface with μ = 0.2. Minimum horizontal force to just move it (g = 10 m/s²):",
+    "options": ["5 N", "10 N", "15 N", "20 N"],
+    "answer_index": 1,
+    "explanation": "F = μmg = 0.2 * 5 * 10 = 10 N.",
+    "source": "manual"
+  },
+  {
+    "id": "jee-wep-2017-m1",
+    "exam": "JEE",
+    "year": 2017,
+    "chapter": "Work Energy Power",
+    "difficulty": "medium",
+    "question": "A 2 kg body is raised by 5 m. Work done against gravity (g = 10 m/s²) is:",
+    "options": ["10 J", "50 J", "100 J", "200 J"],
+    "answer_index": 2,
+    "explanation": "W = mgh = 2 * 10 * 5 = 100 J.",
+    "source": "manual"
+  },
+  {
+    "id": "jee-wep-2022-h1",
+    "exam": "JEE",
+    "year": 2022,
+    "chapter": "Work Energy Power",
+    "difficulty": "hard",
+    "question": "A pump lifts 100 kg of water per minute to a height of 10 m. Power (g = 10 m/s²) is:",
+    "options": ["100 W", "166.7 W", "500 W", "1000 W"],
+    "answer_index": 1,
+    "explanation": "P = mgh/t = (100*10*10)/60 ≈ 166.7 W.",
+    "source": "manual"
+  },
+  {
+    "id": "neet-bot-2016-e1",
+    "exam": "NEET",
+    "year": 2016,
+    "chapter": "Cell: The Unit of Life",
+    "difficulty": "easy",
+    "question": "Which organelle is known as the powerhouse of the cell?",
+    "options": ["Ribosome", "Mitochondria", "Nucleus", "Golgi"],
+    "answer_index": 1,
+    "explanation": "Mitochondria produce ATP via oxidative phosphorylation.",
+    "source": "manual"
+  },
+  {
+    "id": "neet-bot-2020-m1",
+    "exam": "NEET",
+    "year": 2020,
+    "chapter": "Cell: The Unit of Life",
+    "difficulty": "medium",
+    "question": "The site of protein synthesis in a eukaryotic cell is:",
+    "options": ["Mitochondria", "Golgi apparatus", "Ribosome", "Lysosome"],
+    "answer_index": 2,
+    "explanation": "Ribosomes translate mRNA into proteins.",
+    "source": "manual"
+  },
+  {
+    "id": "neet-hp-2014-e1",
+    "exam": "NEET",
+    "year": 2014,
+    "chapter": "Human Physiology",
+    "difficulty": "easy",
+    "question": "Which blood cells are responsible for oxygen transport?",
+    "options": ["WBC", "Platelets", "RBC", "Lymphocytes"],
+    "answer_index": 2,
+    "explanation": "RBCs carry oxygen via hemoglobin.",
+    "source": "manual"
+  }
+]

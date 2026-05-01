@@ -28,6 +28,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { API_CONFIGURED, apiFetch, apiJson, authHeaders, loadRazorpayScript, supabase } from "./api";
 import VoiceAssistant from "./VoiceAssistant";
 import HeyGenAvatar from "./HeyGenAvatar";
+import PYQTest from "./PYQTest";
 import "./styles.css";
 
 function AuthPanel({ session, canAuth }) {
@@ -1316,6 +1317,7 @@ function App() {
         <VoiceAssistant />
         <DoubtSolver exam={exam} apiReady={!missingApi} onExamChange={changeExam} />
         <MCQGenerator exam={exam} apiReady={!missingApi} onAttemptSaved={() => setRefreshKey((value) => value + 1)} />
+        <PYQTest exam={exam} apiReady={!missingApi} />
         <Performance refreshKey={refreshKey} />
         <StudyPlanner exam={exam} apiReady={!missingApi} />
         <Pricing user={profile?.user} apiReady={!missingApi} onUpgraded={loadProfile} />

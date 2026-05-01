@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .config import get_settings
-from .routers import ai_routes, avatar, performance, payments, users
+from .routers import ai_routes, avatar, performance, payments, pyq, users
 
 
 settings = get_settings()
@@ -65,6 +65,7 @@ app.include_router(performance.router, prefix="/api", tags=["performance"])
 app.include_router(payments.router, prefix="/api", tags=["payments"])
 app.include_router(users.router, prefix="/api", tags=["users"])
 app.include_router(avatar.router, prefix="/api", tags=["avatar"])
+app.include_router(pyq.router, prefix="/api", tags=["pyq"])
 
 
 @app.get("/health")
