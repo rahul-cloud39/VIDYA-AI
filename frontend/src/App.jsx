@@ -1319,3 +1319,4 @@ function App() {
     </main>
   );
 }
+createRoot(document.getElementById("root")).render(<App />);
