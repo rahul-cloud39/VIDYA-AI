@@ -1004,20 +1004,74 @@ function MCQGenerator({ exam, onAttemptSaved, apiReady }) {
 }
 
 function TestSeries({ exam, apiReady }) {
-  const [form, setForm] = useState({ exam, subject: "Physics", topic: "Mixed Concepts", difficulty: "medium", count: 5 });
+  const mockPatterns = {
+    JEE: {
+      title: "JEE Main Full Mock",
+      duration: 180,
+      positive: 4,
+      negative: 1,
+      sections: [
+        { name: "Physics", questions: 10 },
+        { name: "Chemistry", questions: 10 },
+        { name: "Mathematics", questions: 10 },
+      ],
+    },
+    NEET: {
+      title: "NEET UG Full Mock",
+      duration: 200,
+      positive: 4,
+      negative: 1,
+      sections: [
+        { name: "Physics", questions: 10 },
+        { name: "Chemistry", questions: 10 },
+        { name: "Biology", questions: 20 },
+      ],
+    },
+    UPSC: {
+      title: "UPSC Prelims GS Mock",
+      duration: 120,
+      positive: 2,
+      negative: 0.66,
+      sections: [
+        { name: "History", questions: 5 },
+        { name: "Polity", questions: 5 },
+        { name: "Geography", questions: 5 },
+        { name: "Economy", questions: 5 },
+        { name: "Current Affairs", questions: 5 },
+      ],
+    },
+  };
+
+  const pattern = mockPatterns[exam] || mockPatterns.JEE;
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [timeLeft, setTimeLeft] = useState(pattern.duration * 60);
 
   useEffect(() => {
-    setForm((prev) => ({ ...prev, exam }));
-  }, [exam]);
+    setQuestions([]);
+    setAnswers({});
+    setSubmitted(false);
+    setTimeLeft(pattern.duration * 60);
+  }, [exam, pattern.duration]);
 
-  function fallbackQuestion(index) {
+  useEffect(() => {
+    if (!questions.length || submitted || timeLeft <= 0) return;
+    const timer = window.setInterval(() => setTimeLeft((value) => value - 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [questions.length, submitted, timeLeft]);
+
+  useEffect(() => {
+    if (questions.length && timeLeft <= 0 && !submitted) {
+      setSubmitted(true);
+    }
+  }, [questions.length, submitted, timeLeft]);
+
+  function fallbackQuestion(sectionName, index) {
     return {
-      question: `${form.subject}: What is the best exam strategy for ${form.topic} question ${index + 1}?`,
+      question: `${sectionName}: Which option is the best exam approach for question ${index + 1}?`,
       options: [
         "Read the question carefully, identify the concept, and solve step by step.",
         "Guess quickly without checking units or conditions.",
@@ -1026,8 +1080,9 @@ function TestSeries({ exam, apiReady }) {
       ],
       answer_index: 0,
       explanation: "A strong test approach starts with concept identification, careful reading, and stepwise solving.",
-      topic: form.topic,
-      difficulty: form.difficulty,
+      topic: sectionName,
+      subject: sectionName,
+      difficulty: "mixed",
     };
   }
 
@@ -1040,23 +1095,25 @@ function TestSeries({ exam, apiReady }) {
     setError("");
     setSubmitted(false);
     setAnswers({});
+    setTimeLeft(pattern.duration * 60);
     try {
-      const total = Math.max(1, Math.min(Number(form.count) || 5, 10));
       const generated = [];
-      for (let index = 0; index < total; index += 1) {
-        try {
-          const question = await apiJson("/api/generate-question", {
-            method: "POST",
-            body: JSON.stringify({
-              exam: form.exam,
-              subject: form.subject,
-              topic: `${form.topic} test question ${index + 1}`,
-              difficulty: form.difficulty,
-            }),
-          });
-          generated.push(question);
-        } catch {
-          generated.push(fallbackQuestion(index));
+      for (const section of pattern.sections) {
+        for (let index = 0; index < section.questions; index += 1) {
+          try {
+            const question = await apiJson("/api/generate-question", {
+              method: "POST",
+              body: JSON.stringify({
+                exam,
+                subject: section.name,
+                topic: `${pattern.title} ${section.name} question ${index + 1}`,
+                difficulty: "mixed",
+              }),
+            });
+            generated.push({ ...question, section: section.name });
+          } catch {
+            generated.push({ ...fallbackQuestion(section.name, index), section: section.name });
+          }
         }
       }
       setQuestions(generated);
@@ -1065,61 +1122,85 @@ function TestSeries({ exam, apiReady }) {
     }
   }
 
-  const score = questions.reduce((total, question, index) => total + (answers[index] === question.answer_index ? 1 : 0), 0);
+  const attempted = Object.keys(answers).length;
+  const correct = questions.reduce((total, question, index) => total + (answers[index] === question.answer_index ? 1 : 0), 0);
+  const wrong = questions.reduce((total, question, index) => total + (answers[index] != null && answers[index] !== question.answer_index ? 1 : 0), 0);
+  const marks = correct * pattern.positive - wrong * pattern.negative;
+  const maxMarks = questions.length * pattern.positive;
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = String(timeLeft % 60).padStart(2, "0");
+  const sectionScores = pattern.sections.map((section) => {
+    const sectionQuestions = questions
+      .map((question, index) => ({ question, index }))
+      .filter((item) => item.question.section === section.name);
+    const sectionCorrect = sectionQuestions.filter((item) => answers[item.index] === item.question.answer_index).length;
+    const sectionWrong = sectionQuestions.filter((item) => answers[item.index] != null && answers[item.index] !== item.question.answer_index).length;
+    return {
+      name: section.name,
+      correct: sectionCorrect,
+      wrong: sectionWrong,
+      attempted: sectionQuestions.filter((item) => answers[item.index] != null).length,
+      total: sectionQuestions.length,
+      marks: sectionCorrect * pattern.positive - sectionWrong * pattern.negative,
+    };
+  });
 
   return (
     <section className="panel test-series-panel">
       <div className="panel-title mcq-title">
-        <span><Trophy size={20} /> Test Series</span>
+        <span><Trophy size={20} /> Complete Mock Test</span>
         <PlanBadge type="free" />
       </div>
       <div className="mcq-meta-row">
-        <span>{exam}</span>
-        <span>{form.difficulty}</span>
-        <span>{questions.length ? `${questions.length} questions` : "Mock practice"}</span>
+        <span>{pattern.title}</span>
+        <span>{pattern.duration} min</span>
+        <span>+{pattern.positive} / -{pattern.negative}</span>
+        <span>{questions.length ? `${questions.length} questions` : `${pattern.sections.reduce((sum, section) => sum + section.questions, 0)} questions`}</span>
       </div>
-      <div className="mcq-form">
-        <label>
-          Subject
-          <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} />
-        </label>
-        <label>
-          Topic / Chapter
-          <input value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })} />
-        </label>
-        <label>
-          Difficulty
-          <select value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
-            <option value="easy">easy</option>
-            <option value="medium">medium</option>
-            <option value="hard">hard</option>
-          </select>
-        </label>
-        <label>
-          Questions
-          <select value={form.count} onChange={(e) => setForm({ ...form, count: Number(e.target.value) })}>
-            <option value={3}>3</option>
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-          </select>
-        </label>
+      <div className="mock-instructions">
+        <strong>Real exam pattern</strong>
+        <p>Timer starts when you click Start Mock. Attempt all sections, submit anytime, or the test auto-submits when time ends.</p>
+        <div className="mock-sections">
+          {pattern.sections.map((section) => (
+            <span key={section.name}>{section.name}: {section.questions} Qs</span>
+          ))}
+        </div>
       </div>
       <div className="mcq-actions">
         <button onClick={startTest} disabled={!apiReady || loading}>
           {loading ? <RotateCcw className="spin-icon" size={16} /> : <Trophy size={16} />}
-          {loading ? "Creating Test..." : "Start Test"}
+          {loading ? "Creating Mock..." : "Start Full Mock"}
         </button>
         {questions.length > 0 && (
           <button className="ghost" onClick={() => setSubmitted(true)} disabled={submitted}>
-            Submit Test
+            Submit Mock
           </button>
         )}
       </div>
       {error && <div className="error-box">{error}</div>}
+      {questions.length > 0 && (
+        <div className="mock-status">
+          <div><strong>{minutes}:{seconds}</strong><span>Time left</span></div>
+          <div><strong>{attempted}/{questions.length}</strong><span>Attempted</span></div>
+          <div><strong>{correct}</strong><span>Correct</span></div>
+          <div><strong>{wrong}</strong><span>Wrong</span></div>
+        </div>
+      )}
       {submitted && (
-        <div className={`test-score ${score >= Math.ceil(questions.length * 0.6) ? "good" : "needs-work"}`}>
-          <strong>Score: {score}/{questions.length}</strong>
-          <span>{score >= Math.ceil(questions.length * 0.6) ? "Great work. Keep practicing tougher sets." : "Revise this topic and retake the test."}</span>
+        <div className={`test-score ${marks >= maxMarks * 0.6 ? "good" : "needs-work"}`}>
+          <strong>Score: {marks.toFixed(2)}/{maxMarks}</strong>
+          <span>{marks >= maxMarks * 0.6 ? "Strong mock performance. Analyze weak sections now." : "Revise weak sections and retake the mock."}</span>
+        </div>
+      )}
+      {submitted && (
+        <div className="section-analysis">
+          {sectionScores.map((section) => (
+            <div key={section.name}>
+              <strong>{section.name}</strong>
+              <span>{section.marks.toFixed(2)} marks</span>
+              <small>{section.attempted}/{section.total} attempted • {section.correct} correct • {section.wrong} wrong</small>
+            </div>
+          ))}
         </div>
       )}
       <div className="test-question-list">
@@ -1127,10 +1208,10 @@ function TestSeries({ exam, apiReady }) {
           <div className="mcq-card" key={`${question.question}-${index}`}>
             <div className="mcq-card-head">
               <div>
-                <span className="mcq-kicker">Question {index + 1}</span>
+                <span className="mcq-kicker">{question.section} • Question {index + 1}</span>
                 <strong>{question.question}</strong>
               </div>
-              <span className="mcq-difficulty">{question.difficulty || form.difficulty}</span>
+              <span className="mcq-difficulty">{question.difficulty || "mixed"}</span>
             </div>
             <div className="mcq-options">
               {(question.options || []).map((option, optionIndex) => {

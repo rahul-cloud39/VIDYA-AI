@@ -616,6 +616,92 @@ button:disabled { cursor: not-allowed; opacity: .48; }
   margin-top: 14px;
 }
 
+.mock-instructions {
+  background: #f8faff;
+  border: 1px solid #e7e9f5;
+  border-radius: 18px;
+  margin-bottom: 14px;
+  padding: 16px;
+}
+
+.mock-instructions strong {
+  color: #111827;
+  display: block;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.mock-instructions p {
+  color: #667085;
+  line-height: 1.55;
+  margin: 0 0 12px;
+}
+
+.mock-sections,
+.mock-status,
+.section-analysis {
+  display: grid;
+  gap: 10px;
+}
+
+.mock-sections {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.mock-sections span {
+  background: #ffffff;
+  border: 1px solid #e7e9f5;
+  border-radius: 999px;
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 9px 12px;
+}
+
+.mock-status {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.mock-status div,
+.section-analysis div {
+  background: #ffffff;
+  border: 1px solid #e7e9f5;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.mock-status strong {
+  color: #111827;
+  display: block;
+  font-size: 22px;
+}
+
+.mock-status span,
+.section-analysis small {
+  color: #667085;
+  display: block;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.section-analysis {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 14px;
+}
+
+.section-analysis strong {
+  color: #111827;
+  display: block;
+}
+
+.section-analysis span {
+  color: #4f46e5;
+  display: block;
+  font-weight: 900;
+  margin-top: 6px;
+}
+
 .test-score {
   align-items: center;
   border-radius: 16px;
@@ -671,6 +757,7 @@ button:disabled { cursor: not-allowed; opacity: .48; }
   .sidebar-menu,
   .dashboard-app .hero,
   .dashboard-app .stats,
+  .mock-status,
   .dashboard-app .layout,
   .dashboard-app .differentiators {
     grid-template-columns: 1fr;
